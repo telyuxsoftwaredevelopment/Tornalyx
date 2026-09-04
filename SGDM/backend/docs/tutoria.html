@@ -1,0 +1,78 @@
+<div class="markdown">
+  <div style="text-align:center;padding:var(--space-6) 0;border-bottom:2px solid var(--red-deep);margin-bottom:var(--space-6)">
+    <p style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--muted-2);text-transform:uppercase;margin:0">ANEP · DGETP · UTU · I.T.S. Arias Balparda</p>
+    <h1 style="font-size:2.4rem;margin:8px 0;color:var(--ink)">Tutoría de Proyecto UTULAB</h1>
+    <p style="font-size:14px;color:var(--muted);margin:4px 0"><strong>Telyux Software Development</strong> · Proyecto Tornalyx · Grupo 3MT (Matutino)</p>
+    <p style="font-size:13px;color:var(--muted-2);margin:0">Integrantes: Germán Bentancor, Roberto Curbelo, Joaquín Duarte, Emiliano González · Entrega: 27/07/2026</p>
+  </div>
+
+  <h2>Objetivo y alcance del documento</h2>
+  <p>Formalizar la identidad visual del grupo de proyecto y de la aplicación, el análisis de creatividad aplicado al producto mediante la técnica <strong>S.C.A.M.P.E.R.</strong>, el registro documental de las <strong>7 actas de reunión formal interna</strong> y la fundamentación de las decisiones de diseño del sistema (arquitectura, tecnologías, modelo de roles, seguridad OWASP y marco legal de la Ley N.º 18.331).</p>
+
+  <h2>1. Identidad de marca del grupo: TELYUX</h2>
+  <p><strong>Significado de TELYUX:</strong></p>
+  <ul>
+    <li><strong>T</strong> → Technology (Tecnología)</li>
+    <li><strong>E</strong> → Engineering (Ingeniería)</li>
+    <li><strong>L</strong> → Logic (Lógica)</li>
+    <li><strong>Y</strong> → Yielding (Capacidad de adaptarse y dar respuesta)</li>
+    <li><strong>UX</strong> → User Experience (Experiencia de usuario)</li>
+  </ul>
+  <p><strong>Fundamentación del isotipo y logotipo:</strong> Isotipo basado en la conjunción geométrica de las letras T y X dentro de un <strong>hexágono tecnológico</strong> que representa conectividad, estructura y seguridad, acompañado de los símbolos de código <code>&lt; &gt;</code> y <code>/</code>, paleta verde neón sobre fondo oscuro y tipografía sans-serif limpia. <strong>Slogan:</strong> <em>"Shaping Digital Experiences" (Dándole forma a experiencias digitales)</em>.</p>
+
+  <h2>2. Identidad del producto: TORNALYX</h2>
+  <p><strong>Significado:</strong> Fusión de <em>"Torneo"</em> (núcleo del sistema) con la terminación <em>"-ALYX"</em>, que aporta dinamismo, fuerza y carácter tecnológico.</p>
+  <p><strong>Isotipo:</strong> Corona deportiva coronada con estrella central (triunfo, liderazgo y superación) dentro de un marco circular que simboliza el ciclo integral de gestión de un torneo.</p>
+
+  <h3>Paleta de colores: Crimson Fire</h3>
+  <table>
+    <thead>
+      <tr><th>Muestra</th><th>Nombre</th><th>Código HEX</th><th>Uso dentro del sistema</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="background:#0D0808;border:1px solid #333"></td><td><strong>Ember</strong></td><td><code>#0D0808</code></td><td>Fondo profundo; máximo contraste de la interfaz.</td></tr>
+      <tr><td style="background:#1C1C1E;border:1px solid #333"></td><td><strong>Forge</strong></td><td><code>#1C1C1E</code></td><td>Tono base estructural de tarjetas, superficies y paneles.</td></tr>
+      <tr><td style="background:#DC2626;border:1px solid #333"></td><td><strong>Crimson</strong></td><td><code>#DC2626</code></td><td>Color principal de marca; botones primarios, acentos y alertas.</td></tr>
+      <tr><td style="background:#F87171;border:1px solid #333"></td><td><strong>Blaze</strong></td><td><code>#F87171</code></td><td>Resaltados dinámicos, focus glow y estados interactivos.</td></tr>
+      <tr><td style="background:#FFF5F5;border:1px solid #333"></td><td><strong>Ash</strong></td><td><code>#FFF5F5</code></td><td>Texto y elementos de lectura con alta legibilidad sobre fondo oscuro.</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Tipografía:</strong> <em>Russo One</em> para títulos y elementos de marca; <em>Rajdhani</em> para textos secundarios y tablas densas. <strong>Slogan:</strong> <em>"La plataforma que organiza todo"</em>.</p>
+
+  <h2>3. Fundamentos de pensamiento basado en S.C.A.M.P.E.R.</h2>
+  <table>
+    <thead>
+      <tr><th>Disparador</th><th>Aplicación en el proyecto Tornalyx</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>S — Sustituir</strong></td><td>Se sustituyen planillas de papel y hojas de cálculo por una plataforma web centralizada con 2FA por correo vía Brevo y BD TiDB Cloud Serverless.</td></tr>
+      <tr><td><strong>C — Combinar</strong></td><td>Se unifican en un solo sistema inscripciones, generación de fixture, carga de resultados, tabla de posiciones y 4 roles de usuario diferenciados.</td></tr>
+      <tr><td><strong>A — Adaptar</strong></td><td>Arquitectura modular adaptable a múltiples disciplinas (fútbol, ajedrez, eSports) y formatos (liga, eliminación directa, suizo), con enfoque Mobile First y OWASP.</td></tr>
+      <tr><td><strong>M — Modificar / Magnificar</strong></td><td>Se magnifica la visibilidad pública para espectadores sin registro obligatorio; se minimiza la carga operativa del organizador con recálculo automático de posiciones.</td></tr>
+      <tr><td><strong>P — Proponer otros usos</strong></td><td>Reutilización para torneos liceales, corporativos, de videojuegos o juegos de mesa, y generación de historial estadístico por jugador.</td></tr>
+      <tr><td><strong>E — Eliminar</strong></td><td>Se elimina el error humano en cálculos manuales, la instalación de software local y funciones accesorias del MVP (como pasarelas de pago) para concentrar el esfuerzo.</td></tr>
+      <tr><td><strong>R — Reordenar</strong></td><td>El participante se autoinscribe y el sistema valida; el desarrollo se organiza en módulos independientes y el diseño parte de la vista del espectador hacia atrás.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4 y 5. Registro formal de Actas de Reunión (Actas 01 a 07)</h2>
+  <ul>
+    <li><strong>Acta 01 (15/06/2026):</strong> Aprobación unánime del nombre comercial "Telyux", asignación de roles bajo Mantei y Constantine y establecimiento de las 7 normas de convivencia.</li>
+    <li><strong>Acta 02 (20/06/2026):</strong> Aplicación de S.C.A.M.P.E.R., definición de identidad gráfica de Tornalyx y estrategia de maquetado Mobile First con Flexbox/Grid.</li>
+    <li><strong>Acta 03 (25/06/2026):</strong> Definición del ciclo de vida Incremental con Scrum, construcción del diagrama de Gantt inicial y selección de encuestas y entrevistas de campo.</li>
+    <li><strong>Acta 04 (02/07/2026):</strong> Análisis de datos crudos del relevamiento y redacción de la estructura del ESRE (IEEE 29148) y los 4 roles de usuario.</li>
+    <li><strong>Acta 05 (09/07/2026):</strong> Justificación de infraestructura Linux/AlmaLinux 8.10 en servidor vs Windows 11 en cliente y diseño de scripts Bash de administración.</li>
+    <li><strong>Acta 06 (15/07/2026):</strong> Identificación de amenazas de seguridad y redacción de la política de contraseñas y controles de acceso RBAC.</li>
+    <li><strong>Acta 07 (21/07/2026):</strong> Verificación de control de calidad, estandarización de PDFs y cierre de la primera entrega académica del 27/07/2026.</li>
+  </ul>
+
+  <h2>6. Fundamentación de elecciones de diseño del sistema</h2>
+  <p><strong>Arquitectura MVC nativa en PHP 8.2+:</strong> Máximo control, rendimiento y separación estricta de responsabilidades sin sobrecarga de frameworks externos. <strong>Base de datos TiDB Cloud:</strong> Escalado automático serverless y compatibilidad total MySQL. <strong>Docker / Render:</strong> Despliegue continuo reproducible y HTTPS automático. <strong>Protección de datos:</strong> Cumplimiento estricto con el principio de minimización de datos según la Ley N.º 18.331 de la República Oriental del Uruguay.</p>
+
+  <h2>Bibliografía</h2>
+  <ul>
+    <li>Eberle, R. F. (1996). <em>Scamper: Creative games and activities for imagination development</em>. Prufrock Press.</li>
+    <li>Osborn, A. F. (1953). <em>Applied imagination: Principles and procedures of creative thinking</em>. Charles Scribner's Sons.</li>
+    <li>Poder Legislativo de la República Oriental del Uruguay. (2008). <em>Ley N.º 18.331: Protección de datos personales y acción de habeas data</em>.</li>
+  </ul>
+</div>

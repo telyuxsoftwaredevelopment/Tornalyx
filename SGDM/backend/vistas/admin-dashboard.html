@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>document.documentElement.setAttribute('data-theme','dark');</script>
+  <title>Tornalyx | Panel de Administración</title>
+
+  <link rel="icon" href="../assets/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="stylesheet" href="../../css/main.css?v=15" />
+  <link rel="stylesheet" href="../../css/components.css?v=15" />
+  <link rel="stylesheet" href="../../css/dashboard.css" />
+  <style>
+    body { display:flex; min-height:100vh; overflow-x:hidden; }
+    /* El navbar se saca del flujo flex del body (que reparte sidebar y
+       contenido en columnas): fijo arriba, ancho completo, y el resto del
+       layout arranca --navbar-height mas abajo. */
+    header.nav { position:fixed; top:0; left:0; right:0; width:100%; z-index:210; }
+    .app-main { margin-top:var(--navbar-height); }
+    .sidebar {
+      position:fixed; top:var(--navbar-height); left:0; bottom:0;
+      /* height, no solo bottom: dashboard.css fija height:100vh y, al ser
+         un alto explicito, ignora el bottom:0 y desborda la pantalla. */
+      height:calc(100vh - var(--navbar-height)); width:var(--sidebar-width);
+      background:var(--bg-2); border-right:1px solid var(--line);
+      display:flex; flex-direction:column; z-index:200;
+      transition:transform .25s cubic-bezier(.4,0,.2,1);
+    }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:var(--space-5) var(--space-4);
+      border-bottom:1px solid var(--line);
+      font-family:var(--head); font-weight:800; font-size:var(--font-size-lg);
+      color:var(--ink); text-decoration:none;
+    }
+    .sidebar-brand .mark {
+      width:36px; height:36px; border-radius:8px;
+      object-fit:contain; flex:none; display:block;
+    }
+    .sidebar__nav { flex:1; padding:var(--space-4) 0; overflow-y:auto; }
+    .sidebar__section {
+      padding:0 var(--space-3) var(--space-2);
+      font-family:var(--mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+      color:var(--muted-2); margin-top:var(--space-4);
+    }
+    .sidebar__item {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:10px var(--space-4); margin:2px var(--space-2); border-radius:10px;
+      font-size:var(--font-size-sm); color:var(--muted);
+      cursor:pointer; transition:all var(--transition-fast);
+      border:1px solid transparent; font-weight:500; text-decoration:none;
+    }
+    .sidebar__item:hover { background:rgba(255,255,255,.04); color:var(--ink); }
+    .sidebar__item.active {
+      background:rgba(236,28,36,.08); color:var(--red-bright);
+      border-color:rgba(236,28,36,.18); box-shadow:inset 3px 0 0 var(--red);
+    }
+    .sidebar__item .icon { font-size:1.1rem; width:22px; text-align:center; flex:none; }
+    .sidebar__footer { padding:var(--space-4); border-top:1px solid var(--line); }
+    .user-row {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:var(--space-2) var(--space-3); border-radius:10px;
+      background:rgba(255,255,255,.03); border:1px solid var(--line);
+    }
+    .user-avatar {
+      width:34px; height:34px; border-radius:50%;
+      background:var(--red);
+      background-size:cover; background-position:center;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:12px; color:#fff; flex:none; font-family:var(--head);
+    }
+    .user-name  { font-size:var(--font-size-sm); color:var(--ink); font-weight:600; }
+    .user-role  { font-size:11px; color:var(--muted-2); font-family:var(--mono); }
+    .sidebar__item .icon svg { width:18px; height:18px; }
+
+    .sidebar-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:150;
+      opacity:0; pointer-events:none; transition:opacity .25s;
+    }
+    .sidebar-overlay.show { opacity:1; pointer-events:all; }
+
+    .app-main { margin-left:var(--sidebar-width); flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    .topbar {
+      position:sticky; top:var(--navbar-height); z-index:100;
+      background:rgba(11,7,8,.9); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--line-soft);
+      padding:0 var(--space-6); height:64px;
+      display:flex; align-items:center; justify-content:space-between; gap:var(--space-4);
+    }
+    .topbar-left { display:flex; align-items:center; gap:var(--space-3); }
+    /* ☰ anima a ✕ al abrir (mismo tratamiento que .burger en las páginas
+       públicas), para dar feedback visual del estado del sidebar. */
+    .menu-toggle {
+      display:none; flex-direction:column; gap:4px;
+      background:none; border:none; cursor:pointer;
+      padding:8px; border-radius:8px;
+    }
+    .menu-toggle span {
+      display:block; width:20px; height:2px;
+      background:var(--muted); border-radius:2px;
+      transition:transform .25s ease, opacity .2s;
+    }
+    .menu-toggle.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+    .menu-toggle.open span:nth-child(2) { opacity:0; }
+    .menu-toggle.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+    @media(max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .app-main { margin-left:0; }
+      .menu-toggle { display:flex; }
+    }
+
+    .page-content { padding:var(--space-6); flex:1; }
+    .section-panel { display:none; }
+    .section-panel.active { display:block; }
+
+    /* .kpi-grid / .kpi-card viven en main.css (compartido con el panel
+       de organizador, con ícono en la esquina superior derecha). */
+
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th {
+      font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase;
+      color:var(--muted-2); text-align:left; padding:var(--space-2) var(--space-4);
+      background:rgba(255,255,255,.02); border-bottom:1px solid var(--line);
+    }
+    .data-table td {
+      padding:var(--space-3) var(--space-4); border-bottom:1px solid var(--line-soft);
+      font-size:var(--font-size-sm); color:var(--muted);
+    }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,.02); }
+    .data-table td:first-child { color:var(--ink); font-weight:500; }
+
+    .page-header {
+      margin-bottom:var(--space-6);
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:var(--space-4); flex-wrap:wrap;
+    }
+    .page-header h1 { font-size:var(--font-size-2xl); color:var(--ink); }
+    .page-header p  { color:var(--muted); font-size:var(--font-size-sm); margin-top:4px; }
+
+    .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+    .dot-green  { background:#22c55e; box-shadow:0 0 6px rgba(34,197,94,.6); }
+    .dot-yellow { background:#eab308; }
+    .dot-muted  { background:var(--muted-2); }
+
+    /* Tarjeta de torneo del listado (misma presentación que el panel del organizador) */
+    .torneo-item {
+      padding:var(--space-4);
+      border:1px solid var(--line); border-radius:14px;
+      background:var(--bg-card); margin-bottom:var(--space-3);
+      transition:border-color .2s;
+    }
+    .torneo-item:hover { border-color:var(--red-deep); }
+    .torneo-item__head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-3); }
+    .torneo-item__title { font-family:var(--head); font-weight:700; color:var(--ink); font-size:var(--font-size-base); }
+    .torneo-item__meta  { font-size:12px; color:var(--muted-2); margin-top:2px; }
+
+    .progress-bar  { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:6px; }
+    .progress-fill { height:100%; border-radius:3px; background:var(--red); transition:width .5s ease; }
+
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-4); }
+    @media(max-width:640px) {
+      .form-grid-2 { grid-template-columns:1fr; }
+      .form-grid-3 { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar publica: la misma barra del resto del sitio, para poder salir del
+       panel sin volver atras. main.js (initAuthNav) reemplaza "Iniciar Sesion /
+       Registrarse" por el avatar y "Cerrar sesion" cuando hay sesion, que en
+       estas pantallas privadas es siempre. -->
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="/">
+        <span class="badge badge-crop" style="background-image:url(../../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+        Tornalyx
+      </a>
+      <nav class="nav-links" aria-label="Navegacion principal">
+        <a href="/">Inicio</a>
+        <a href="/torneos">Torneos</a>
+        <a href="/jugadores">Jugadores</a>
+        <a href="/documentacion">Documentacion</a>
+      </nav>
+      <div class="nav-right">
+        <a href="/login" class="nav-link-login">Iniciar Sesion</a>
+        <a href="/login?tab=registro" class="btn btn-nav-register">Registrarse</a>
+      </div>
+      <div class="nav-utility" id="navUtility">
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/">
+      <span class="mark badge-crop" style="background-image:url(../../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+      Tornalyx
+    </a>
+    <nav class="sidebar__nav">
+      <div class="sidebar__section">Principal</div>
+      <a class="sidebar__item active" data-section="inicio" data-title="Dashboard">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> Dashboard
+      </a>
+      <div class="sidebar__section">Gestión</div>
+      <a class="sidebar__item" data-section="usuarios" data-title="Usuarios">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M4.8 20c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2"/></svg></span> Usuarios
+      </a>
+      <a class="sidebar__item" data-section="torneos" data-title="Torneos">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3.5a5 5 0 0 1-10 0V4Z"/><path d="M7 5.2H5.2a2 2 0 0 0 0 4H7"/><path d="M17 5.2h1.8a2 2 0 0 1 0 4H17"/><path d="M12 12.5V16"/><path d="M9 20h6"/><path d="M9.5 16h5l.6 4h-6.2l.6-4Z"/></svg></span> Torneos
+      </a>
+      <a class="sidebar__item" data-section="equipos" data-title="Equipos">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.5 20c0-3.6 2.5-6.3 5.5-6.3s5.5 2.7 5.5 6.3"/><circle cx="16.8" cy="9" r="2.3"/><path d="M15 14.2c2.4.5 4.2 2.7 4.5 5.8"/></svg></span> Equipos
+      </a>
+      <a class="sidebar__item" data-section="resultados" data-title="Resultados">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z"/><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M9 12h6M9 16h6"/></svg></span> Resultados
+      </a>
+      <div class="sidebar__section">Documentación</div>
+      <a class="sidebar__item" data-section="solicitudes" data-title="Solicitudes de acceso">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span> Solicitudes de acceso
+      </a>
+      <div class="sidebar__section">Sistema</div>
+      <a class="sidebar__item" data-section="reportes" data-title="Reportes">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></span> Reportes
+      </a>
+      <a class="sidebar__item" data-section="config" data-title="Configuración">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span> Configuración
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="user-row">
+        <div class="user-avatar" data-user-avatar>A</div>
+        <div>
+          <a class="user-name" data-user-name href="/perfil" style="text-decoration:none">Administrador</a>
+          <div class="user-role" data-user-role>admin</div>
+        </div>
+        <a href="/logout" style="margin-left:auto;color:var(--muted-2);display:inline-flex" title="Cerrar sesión" aria-label="Cerrar sesión">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <div class="app-main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <span id="topbarTitle" style="font-family:var(--head);font-weight:700;color:var(--ink)">Dashboard</span>
+      </div>
+      <div id="topbarActions" style="display:flex;align-items:center;gap:var(--space-4)">
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- INICIO -->
+      <div class="section-panel active" id="panel-inicio">
+        <div class="page-header">
+          <div>
+            <h1 data-user-welcome>Bienvenido, Administrador</h1>
+            <p>Resumen general del sistema Tornalyx · Actualizado ahora</p>
+          </div>
+        </div>
+        <!-- Se completa con GET /api/admin/salud si falta correr alguna
+             migración .sql en esta base (ver add_schema_migrations.sql) -->
+        <div class="alert alert-error hidden" id="saludBanner" role="alert"></div>
+
+        <!-- KPIs y actividad los completa admin.js con GET /api/admin/stats -->
+        <div class="kpi-grid" data-reveal>
+          <div class="kpi-card">
+            <span class="kpi-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg></span>
+            <div class="kpi-card__label">Usuarios registrados</div>
+            <div class="kpi-card__value" id="kpiUsuarios">—</div>
+            <div class="kpi-card__delta" id="kpiUsuariosDelta"></div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4.5A2.5 2.5 0 0 0 7 7.5"/><path d="M17 5h2.5A2.5 2.5 0 0 1 17 7.5"/><path d="M12 11v4"/><path d="M9 19h6"/><path d="M10.5 15h3l.8 4h-4.6l.8-4Z"/></svg></span>
+            <div class="kpi-card__label">Torneos activos</div>
+            <div class="kpi-card__value" id="kpiTorneos">—</div>
+            <div class="kpi-card__delta" id="kpiTorneosDelta"></div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.6.4 4.5 2.6 4.5 5.3"/></svg></span>
+            <div class="kpi-card__label">Equipos inscritos</div>
+            <div class="kpi-card__value" id="kpiEquipos">—</div>
+            <div class="kpi-card__delta" id="kpiEquiposDelta"></div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 5h13l-3 4 3 4H5"/></svg></span>
+            <div class="kpi-card__label">Partidos registrados</div>
+            <div class="kpi-card__value" id="kpiPartidos">—</div>
+            <div class="kpi-card__delta" id="kpiPartidosDelta"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card__header"><h3>Actividad reciente</h3></div>
+          <div id="actividadReciente" style="display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-4)">
+            <div style="color:var(--muted);font-size:var(--font-size-sm)">Cargando actividad…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USUARIOS -->
+      <div class="section-panel" id="panel-usuarios">
+        <div class="page-header">
+          <div><h1>Usuarios</h1><p>Gestión de usuarios del sistema</p></div>
+          <button class="btn btn-primary btn-sm" id="nuevoUsuarioBtn">+ Nuevo usuario</button>
+        </div>
+        <div class="card">
+          <div class="card__header" style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);flex-wrap:wrap">
+            <h3>Lista de usuarios</h3>
+            <div style="display:flex;gap:var(--space-2)">
+              <select class="form-control" id="usuariosRol" style="max-width:180px;padding:8px 14px">
+                <option value="">Todos los roles</option>
+                <option value="participante">Participantes</option>
+                <option value="administrador">Administradores</option>
+              </select>
+              <input class="form-control" type="search" id="usuariosBuscar" placeholder="Buscar..." style="max-width:240px;padding:8px 14px" />
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Registrado</th><th></th></tr>
+              </thead>
+              <!-- Las filas las completa admin.js con GET /api/admin/usuarios -->
+              <tbody id="usuariosBody"></tbody>
+            </table>
+          </div>
+          <div class="card__footer" id="usuariosFooter" style="font-size:12px;color:var(--muted-2);font-family:var(--mono)">
+            Cargando usuarios…
+          </div>
+        </div>
+      </div>
+
+      <!-- TORNEOS -->
+      <div class="section-panel" id="panel-torneos">
+        <div class="page-header">
+          <div><h1>Torneos</h1><p>Todos los torneos del sistema</p></div>
+          <button class="btn btn-primary btn-sm" data-toggle-create>+ Nuevo torneo</button>
+        </div>
+
+        <!-- Formulario de creación: oculto hasta pulsar "+ Nuevo torneo" -->
+        <div class="card hidden" id="createCard" style="max-width:720px;margin-bottom:var(--space-6)">
+          <div class="card__header"><h3>Nuevo torneo</h3></div>
+          <div class="card__body">
+            <form id="createForm" novalidate>
+              <!-- Solo visible al editar un torneo existente: recién ahí hay un id
+                   real contra el que subir la imagen (organizador.js la muestra/oculta). -->
+              <div class="form-group hidden" id="torneoBannerRow">
+                <label class="form-label">Foto de fondo</label>
+                <div style="display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap">
+                  <div id="torneoBannerPreview" style="width:100px;height:66px;border-radius:10px;background:var(--bg-2);background-size:cover;background-position:center;border:1px solid var(--line);flex:none"></div>
+                  <div>
+                    <input type="file" id="torneoBannerInput" accept="image/jpeg,image/png,image/webp" class="hidden" />
+                    <button type="button" class="btn btn-ghost btn-sm" id="torneoBannerBtn">Cambiar foto</button>
+                    <div style="font-size:12px;color:var(--muted-2);margin-top:6px">JPG, PNG o WebP · máx. 4 MB</div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="torneoNombre">Nombre del torneo</label>
+                <input class="form-control" type="text" id="torneoNombre" name="nombre"
+                       placeholder="ej. Copa Verano 2026" maxlength="120" required />
+              </div>
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="deporte">Deporte</label>
+                  <select class="form-control" id="deporte" name="disciplina" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="Fútbol">Fútbol</option>
+                    <option value="Básquetbol">Básquetbol</option>
+                    <option value="Tenis">Tenis</option>
+                    <option value="Vóley">Vóley</option>
+                    <option value="Ajedrez">Ajedrez</option>
+                    <option value="eSports">eSports</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="sistema">Sistema de torneo</label>
+                  <!-- Los value coinciden con el ENUM `formato` de la tabla torneos -->
+                  <select class="form-control" id="sistema" name="formato" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="liga">Liga (todos contra todos)</option>
+                    <option value="eliminacion_directa">Eliminación directa</option>
+                    <option value="suizo">Sistema suizo</option>
+                    <option value="grupos_playoff">Grupos + playoffs</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid-3">
+                <div class="form-group">
+                  <label class="form-label" for="maxEquipos">Máx. participantes</label>
+                  <input class="form-control" type="number" id="maxEquipos" name="max_participantes"
+                         placeholder="16" min="2" max="512" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="fechaInicio">Fecha inicio</label>
+                  <input class="form-control" type="date" id="fechaInicio" name="fecha_inicio" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="fechaFin">Fecha estimada fin</label>
+                  <input class="form-control" type="date" id="fechaFin" name="fecha_fin" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="descripcion">Descripción del torneo</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="3" maxlength="2000"
+                  placeholder="Describe el torneo, reglas especiales, premios, etc."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="publicar">Al crearlo</label>
+                <select class="form-control" id="publicar" name="publicar">
+                  <option value="1">Publicar y abrir inscripciones</option>
+                  <option value="0">Guardar como borrador (no visible al público)</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:var(--space-3)">
+                <button type="submit" class="btn btn-primary">Crear torneo</button>
+                <button type="reset" class="btn btn-ghost" data-toggle-create>Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Lista de todos los torneos: la completa organizador.js -->
+        <div id="misTorneos"></div>
+      </div>
+
+      <!-- PARTICIPANTES / EQUIPOS -->
+      <div class="section-panel" id="panel-equipos">
+        <div class="page-header">
+          <div><h1>Participantes</h1><p>Inscripciones y equipos por torneo</p></div>
+          <select class="form-control" style="max-width:240px;padding:8px 14px" data-torneos-select></select>
+        </div>
+        <div class="card">
+          <div class="card__header"><h3>Inscripciones</h3></div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Participante</th><th>Equipo</th><th>Inscripto el</th><th>Estado</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="inscripcionesBody"></tbody>
+            </table>
+          </div>
+          <div class="card__body hidden" id="inscripcionesEmpty" style="color:var(--muted);text-align:center">
+            Todavía no hay inscripciones en este torneo.
+          </div>
+        </div>
+      </div>
+
+      <!-- FIXTURE Y RESULTADOS -->
+      <div class="section-panel" id="panel-resultados">
+        <div class="page-header">
+          <div><h1>Fixture y resultados</h1><p>Emparejamientos, horarios y marcadores</p></div>
+          <select class="form-control" style="max-width:240px;padding:8px 14px" data-torneos-select></select>
+        </div>
+
+        <div class="card" style="margin-bottom:var(--space-5)">
+          <div class="card__body" style="display:flex;gap:var(--space-4);align-items:center;flex-wrap:wrap">
+            <div style="flex:1;min-width:220px">
+              <strong style="color:var(--ink);display:block">Generar emparejamientos</strong>
+              <span style="font-size:12px;color:var(--muted-2)">
+                En liga se crea el calendario completo; en eliminación y suizo, una ronda por vez.
+              </span>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnFixture">Generar siguiente ronda</button>
+          </div>
+        </div>
+
+        <div id="fixtureLista"></div>
+
+        <div class="card" style="margin-top:var(--space-5)">
+          <div class="card__header"><h3>Tabla de posiciones</h3></div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>#</th><th>Equipo / Participante</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th></tr>
+              </thead>
+              <tbody id="posicionesBody"></tbody>
+            </table>
+          </div>
+          <div class="card__body hidden" id="posicionesEmpty" style="color:var(--muted);text-align:center">
+            Todavía no hay posiciones: se calculan a medida que se cargan resultados.
+          </div>
+        </div>
+      </div>
+
+      <!-- SOLICITUDES DE ACCESO A DOCUMENTACIÓN -->
+      <div class="section-panel" id="panel-solicitudes">
+        <div class="page-header">
+          <div><h1>Solicitudes de acceso</h1><p>Autorizaciones para la documentación restringida</p></div>
+          <button class="btn btn-ghost btn-sm" id="solicitudesRefrescar">Actualizar</button>
+        </div>
+        <div class="card">
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Usuario</th><th>Correo</th><th>Materia</th><th>Estado</th><th>Solicitado</th><th>Acciones</th></tr>
+              </thead>
+              <!-- Las filas las completa admin.js con GET /api/admin/doc-solicitudes -->
+              <tbody id="solicitudesBody"></tbody>
+            </table>
+          </div>
+          <div class="card__footer" id="solicitudesFooter" style="font-size:12px;color:var(--muted-2);font-family:var(--mono)">
+            Cargando…
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTES -->
+      <div class="section-panel" id="panel-reportes">
+        <div class="page-header">
+          <div><h1>Reportes</h1><p>Métricas y estadísticas del sistema</p></div>
+          <button class="btn btn-ghost btn-sm">Exportar CSV</button>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card__label">Torneos este mes</div>
+            <div class="kpi-card__value">8</div>
+            <div class="kpi-card__delta">▲ +2 vs mes anterior</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Partidos este mes</div>
+            <div class="kpi-card__value">96</div>
+            <div class="kpi-card__delta">▲ +14 vs mes anterior</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__label">Nuevos usuarios</div>
+            <div class="kpi-card__value">42</div>
+            <div class="kpi-card__delta">▼ -3 vs mes anterior</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIG -->
+      <div class="section-panel" id="panel-config">
+        <div class="page-header">
+          <div><h1>Configuración</h1><p>Ajustes generales del sistema</p></div>
+        </div>
+        <div class="card" style="max-width:560px">
+          <div class="card__body">
+            <div class="form-group">
+              <label class="form-label">Nombre de la plataforma</label>
+              <input class="form-control" type="text" value="Tornalyx" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Correo de contacto</label>
+              <input class="form-control" type="email" value="admin@tornalyx.uy" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Zona horaria</label>
+              <select class="form-control">
+                <option selected>America/Montevideo (UTC-3)</option>
+                <option>America/Buenos_Aires (UTC-3)</option>
+              </select>
+            </div>
+            <button class="btn btn-primary">Guardar cambios</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal de alta/edición de usuario (lo maneja admin.js) -->
+  <div class="modal" id="usuarioModal" aria-hidden="true">
+    <div class="modal__box" style="max-width:560px">
+      <button class="modal__close" data-modal-close aria-label="Cerrar">✕</button>
+      <h3 class="modal__title" id="usuarioModalTitle">Nuevo usuario</h3>
+      <form id="usuarioForm" novalidate>
+        <input type="hidden" name="id" id="usuarioId" />
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="usuarioNombre">Nombre</label>
+            <input class="form-control" type="text" id="usuarioNombre" name="nombre" maxlength="60" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="usuarioApellido">Apellido</label>
+            <input class="form-control" type="text" id="usuarioApellido" name="apellido" maxlength="60" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="usuarioEmail">Correo electrónico</label>
+          <input class="form-control" type="email" id="usuarioEmail" name="email" maxlength="120" required />
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" for="usuarioRolCampo">Rol</label>
+            <select class="form-control" id="usuarioRolCampo" name="rol" required>
+              <option value="participante">Participante</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="usuarioEstado">Estado</label>
+            <select class="form-control" id="usuarioEstado" name="estado" required>
+              <option value="activo">Activo</option>
+              <option value="suspendido">Suspendido</option>
+              <option value="pendiente">Pendiente</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="usuarioFechaNac">Fecha de nacimiento</label>
+          <input class="form-control" type="date" id="usuarioFechaNac" name="fecha_nac" min="1900-01-01" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="usuarioPassword">Contraseña</label>
+          <input class="form-control" type="password" id="usuarioPassword" name="password"
+                 autocomplete="new-password" />
+          <!-- El texto de ayuda cambia entre alta y edición desde admin.js -->
+          <small id="usuarioPasswordHint" style="color:var(--muted-2);font-size:12px"></small>
+        </div>
+        <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4)">
+          <button type="submit" class="btn btn-primary" id="usuarioSubmit">Crear usuario</button>
+          <button type="button" class="btn btn-ghost" data-modal-close>Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Navegacion movil: la misma capsula flotante de las paginas publicas.
+       Se oculta sola arriba de 860px (.bottom-nav en main.css). -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <span class="bottom-nav__pill" aria-hidden="true"></span>
+    <a href="/" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 11.5 12 4l8 7.5"/>
+          <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5.5h4V20h3a1 1 0 0 0 1-1v-8.5"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Inicio</span>
+    </a>
+    <a href="/torneos" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 4h10v3.5a5 5 0 0 1-10 0V4Z"/>
+          <path d="M7 5.2H5.2a2 2 0 0 0 0 4H7"/>
+          <path d="M17 5.2h1.8a2 2 0 0 1 0 4H17"/>
+          <path d="M12 12.5V16"/>
+          <path d="M9 20h6"/>
+          <path d="M9.5 16h5l.6 4h-6.2l.6-4Z"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Torneos</span>
+    </a>
+    <a href="/jugadores" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="8.2" r="3.2"/>
+          <path d="M3.5 20c0-3.6 2.5-6.3 5.5-6.3s5.5 2.7 5.5 6.3"/>
+          <circle cx="16.8" cy="9" r="2.3"/>
+          <path d="M15 14.2c2.4.5 4.2 2.7 4.5 5.8"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Jugadores</span>
+    </a>
+    <a href="/documentacion" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7.5 3h6l4 4v12.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>
+          <path d="M13.5 3v4h4"/>
+          <path d="M9 13h6M9 16.5h6M9 9.5h2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Documentación</span>
+    </a>
+    <a href="/login" class="bottom-nav__item bottom-nav__account" aria-label="Entrar" title="Entrar">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8.2" r="3.4"/>
+          <path d="M4.8 20c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Cuenta</span>
+    </a>
+  </nav>
+
+  <script src="../../js/main.js?v=15"></script>
+  <script src="../../js/dashboard.js"></script>
+  <script src="../../js/torneo-ui.js"></script>
+  <script src="../../js/organizador.js"></script>
+  <script src="../../js/organizador-gestion.js"></script>
+  <script src="../../js/admin.js"></script>
+</body>
+</html>

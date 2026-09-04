@@ -1,0 +1,60 @@
+Options -Indexes
+
+RewriteEngine On
+
+# /registro y /login sirven el mismo login.html (tarjeta fusionada con flip
+# 3D entre Iniciar sesión / Crear cuenta); no existe un registro.html propio.
+# Solo en GET: un POST /login o POST /registro es un envío de formulario que
+# tiene que llegar a AuthController vía index.php, no el HTML estático (si no,
+# el navegador recibe la página de vuelta en lugar de JSON y postForm() explota
+# con "Error de conexión" al intentar parsearla).
+RewriteCond %{REQUEST_METHOD} =GET
+RewriteRule ^registro/?$ login.html [L]
+
+# URLs "bonitas" -> archivo .html estático correspondiente (p. ej. /login
+# -> login.html, /admin/dashboard -> admin/dashboard.html). Las vistas
+# simples ya no pasan por PHP; solo lo hacen las rutas de guardia de sesión
+# (/perfil, /admin/dashboard, /organizador/dashboard, definidas en
+# index.php) y el flujo de Documentación, que siguen siendo PHP.
+# Igual que arriba: solo GET, para que los POST (login, registro, etc.)
+# siempre lleguen al front controller aunque exista un .html con ese nombre.
+RewriteCond %{REQUEST_METHOD} =GET
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# Redirigir todo lo demás al index.php (Front Controller)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Seguridad: bloquear acceso a archivos sensibles
+<FilesMatch "\.(env|json|md|sql|sh|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ──────────────────────────────────────────────────────────────
+# Headers de seguridad
+# ──────────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # HSTS: fuerza HTTPS durante 1 año (solo aplica cuando ya se sirve por HTTPS).
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Content-Security-Policy: scripts solo locales; estilos inline permitidos
+    # (las vistas usan atributos style=); fuentes desde Google Fonts.
+    # img-src incluye los hosts de imágenes de Google Docs porque la página de
+    # Documentación incrusta el contenido publicado de los Docs (que trae imágenes
+    # servidas desde docs.google.com / googleusercontent.com). El resto sigue cerrado.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://docs.google.com https://*.googleusercontent.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+    # X-XSS-Protection está deprecado y puede introducir vulnerabilidades;
+    # se reemplaza por la CSP de arriba. Lo desactivamos explícitamente.
+    Header always set X-XSS-Protection "0"
+</IfModule>

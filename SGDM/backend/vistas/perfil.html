@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>document.documentElement.setAttribute('data-theme','dark');</script>
+  <title>Tornalyx | Mi Perfil</title>
+
+  <link rel="icon" href="../assets/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="stylesheet" href="../../css/variables.css?v=17" />
+  <link rel="stylesheet" href="../../css/main.css?v=17" />
+  <link rel="stylesheet" href="../../css/components.css?v=17" />
+  <link rel="stylesheet" href="../../css/dashboard.css" />
+  <style>
+    /* ─── Layout General ──────────────────────────────────── */
+    body { display:flex; min-height:100vh; overflow-x:hidden; background:var(--bg); color:var(--ink); }
+    
+    /* El navbar se saca del flujo flex del body (que reparte sidebar y
+       contenido en columnas): fijo arriba, ancho completo, y el resto del
+       layout arranca --navbar-height mas abajo. */
+    header.nav { position:fixed; top:0; left:0; right:0; width:100%; z-index:210; }
+    .app-main { margin-top:var(--navbar-height); }
+    /* ─── Sidebar Estilo Tornalyx ─────────────────────────── */
+    .sidebar {
+      position:fixed; top:var(--navbar-height); left:0; bottom:0;
+      /* height, no solo bottom: dashboard.css fija height:100vh y, al ser
+         un alto explicito, ignora el bottom:0 y desborda la pantalla. */
+      height:calc(100vh - var(--navbar-height)); width:var(--sidebar-width, 250px);
+      background:var(--bg-2, #14171D); border-right:1px solid var(--line, #222733);
+      display:flex; flex-direction:column; z-index:200;
+      transition:transform .25s cubic-bezier(.4,0,.2,1);
+    }
+    .sidebar-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:150;
+      opacity:0; pointer-events:none; transition:opacity .25s;
+    }
+    .sidebar-overlay.show { opacity:1; pointer-events:all; }
+    .sidebar-brand {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:var(--space-5) var(--space-4);
+      border-bottom:1px solid var(--line, #222733);
+      font-family:var(--head); font-weight:800; font-size:var(--font-size-lg);
+      color:var(--ink); text-decoration:none;
+    }
+    .sidebar-brand .mark {
+      width:32px; height:32px; border-radius:8px;
+      object-fit:contain; flex:none; display:block;
+    }
+    .sidebar__nav { flex:1; padding:var(--space-4) 0; overflow-y:auto; }
+    .sidebar__section {
+      padding:0 var(--space-4) var(--space-2);
+      font-family:var(--mono, monospace); font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
+      color:#6e7687; margin-top:var(--space-4); display:block;
+    }
+    .sidebar__item {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:11px var(--space-4); margin:3px var(--space-3); border-radius:10px;
+      font-size:var(--font-size-sm); color:#8d96a7;
+      cursor:pointer; transition:all var(--transition-fast);
+      border:1px solid transparent; font-weight:500; text-decoration:none;
+    }
+    .sidebar__item:hover { background:rgba(255,255,255,.05); color:var(--ink); }
+    .sidebar__item.active {
+      background:rgba(229, 9, 20, 0.14) !important; color:#ffffff !important;
+      border:1px solid rgba(229, 9, 20, 0.35) !important; font-weight:600;
+      box-shadow:inset 3px 0 0 var(--red, #e50914);
+    }
+    .sidebar__item .icon { font-size:1.1rem; width:20px; text-align:center; flex:none; display:flex; align-items:center; justify-content:center; }
+    .sidebar__item.active .icon svg { color:var(--red-bright, #ff1e2b); }
+    .sidebar__item svg { width:18px; height:18px; stroke-width:2; }
+    
+    .sidebar__footer { padding:var(--space-4); border-top:1px solid var(--line, #222733); }
+    .user-row {
+      display:flex; align-items:center; gap:var(--space-3);
+      padding:8px 10px; border-radius:10px;
+      background:rgba(255,255,255,.03); border:1px solid var(--line, #222733);
+    }
+    .user-avatar {
+      width:34px; height:34px; border-radius:50%;
+      background:var(--red, #e50914);
+      background-size:cover; background-position:center;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:12px; color:#fff; flex:none; font-family:var(--head);
+      box-shadow:0 0 0 2px rgba(229,9,20,0.3);
+    }
+    .user-name { font-size:13px; color:var(--ink); font-weight:600; text-transform:capitalize; }
+    .user-role { font-size:11px; color:#7d8699; text-transform:capitalize; }
+    
+    /* ─── Main Area & Topbar ──────────────────────────────── */
+    .app-main { margin-left:var(--sidebar-width, 250px); flex:1; display:flex; flex-direction:column; min-width:0; }
+    .topbar {
+      position:sticky; top:var(--navbar-height); z-index:100;
+      background:rgba(13, 15, 18, 0.85); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line, #222733); padding:0 var(--space-6); height:64px;
+      display:flex; align-items:center; justify-content:space-between; gap:var(--space-4);
+    }
+    .topbar-left { display:flex; align-items:center; gap:var(--space-3); }
+    .topbar-title { font-family:var(--head); font-weight:700; font-size:18px; color:var(--ink); }
+    .menu-toggle {
+      display:none; flex-direction:column; gap:4px;
+      background:none; border:none; cursor:pointer; padding:8px; border-radius:8px;
+    }
+    .menu-toggle span { display:block; width:20px; height:2px; background:var(--muted); border-radius:2px; }
+    @media(max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .app-main { margin-left:0; }
+      .menu-toggle { display:flex; }
+    }
+    
+    .app-content { padding:var(--space-6); flex:1; max-width:1100px; width:100%; margin:0 auto; }
+    
+    /* ─── Profile Hero Card (Inspirado en Mockup) ─────────── */
+    .profile-hero-card {
+      background:#11141a; border:1px solid #1f242e;
+      border-radius:18px; padding:28px 32px; margin-bottom:24px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.3);
+    }
+    .profile-hero-top {
+      display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+    }
+    .avatar-wrap {
+      position:relative; width:92px; height:92px; flex:none;
+    }
+    .avatar--large {
+      width:92px; height:92px; border-radius:50%;
+      background:var(--red, #e50914);
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--head); font-weight:800; font-size:2rem; color:#fff;
+      box-shadow:0 0 0 3px #14171d, 0 0 0 5px rgba(229,9,20,0.4);
+      background-size:cover; background-position:center;
+      overflow:hidden; cursor:pointer;
+    }
+    .avatar-edit-overlay {
+      position:absolute; bottom:0; right:0; width:30px; height:30px;
+      background:#1a1e27; border:2px solid #29303e; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      color:#fff; cursor:pointer; transition:background .15s, transform .15s;
+    }
+    .avatar-edit-overlay:hover { background:var(--red, #e50914); transform:scale(1.08); }
+    
+    .profile-hero-info { flex:1; min-width:240px; }
+    .profile-hero-name {
+      font-size:26px; font-family:var(--head); font-weight:800; color:#ffffff;
+      margin:0 0 8px 0; text-transform:capitalize; line-height:1.2;
+      display:flex; align-items:center; flex-wrap:wrap; gap:6px;
+    }
+    .profile-hero-tag {
+      color:#8d96a7; font-family:var(--mono, monospace);
+      font-size:0.75em; font-weight:700; letter-spacing:0.5px;
+      vertical-align:middle; display:inline-block;
+    }
+    .profile-hero-meta {
+      display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+      font-size:13px; color:#8d96a7;
+    }
+    .profile-hero-meta span { display:inline-flex; align-items:center; gap:6px; }
+    .badge-role-admin {
+      background:#e50914; color:#ffffff !important;
+      font-size:10px; font-weight:800; letter-spacing:1px;
+      padding:4px 10px; border-radius:4px; text-transform:uppercase;
+      display:inline-block; font-family:var(--head);
+    }
+    .badge-role-user {
+      background:#262c3a; color:#cbd5e1 !important;
+      font-size:10px; font-weight:800; letter-spacing:1px;
+      padding:4px 10px; border-radius:4px; text-transform:uppercase;
+      display:inline-block; font-family:var(--head);
+    }
+
+    /* ─── Riot ID Group (Nickname + Tag) ─────────────────── */
+    .riot-id-group {
+      display:flex; align-items:center; gap:12px;
+    }
+    .riot-id-nick-wrap {
+      flex:1; min-width:140px;
+    }
+    .riot-id-tag-wrap {
+      position:relative; display:flex; align-items:center;
+      width:140px; flex:none;
+    }
+    .riot-id-tag-prefix {
+      position:absolute; left:14px;
+      color:var(--red, #e50914); font-family:var(--head, sans-serif);
+      font-weight:800; font-size:16px; pointer-events:none; z-index:2;
+    }
+    .riot-id-tag-input {
+      padding-left:32px !important; font-family:var(--mono, monospace);
+      font-weight:700 !important; letter-spacing:1.5px; text-transform:uppercase;
+    }
+    @media(max-width:540px) {
+      .riot-id-tag-wrap { width:115px; }
+    }
+
+    /* ─── Stats Row en Hero Card ──────────────────────────── */
+    .profile-stats-row {
+      display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;
+      margin-top:24px; padding-top:24px; border-top:1px solid #1a1e27;
+    }
+    .profile-stat-col {
+      display:flex; flex-direction:column; gap:4px;
+    }
+    .profile-stat-val {
+      font-family:var(--head); font-size:28px; font-weight:800; line-height:1;
+      color:var(--red-bright, #ff1e2b);
+    }
+    .profile-stat-lbl {
+      font-family:var(--head); font-size:11px; font-weight:700;
+      color:#6e7687; letter-spacing:0.8px; text-transform:uppercase;
+    }
+    @media(max-width:640px) {
+      .profile-stats-row { grid-template-columns:repeat(2, 1fr); gap:20px 16px; }
+    }
+
+    /* ─── Form Card (Datos Personales) ────────────────────── */
+    .profile-form-card {
+      background:#11141a; border:1px solid #1f242e;
+      border-radius:18px; padding:28px 32px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.3);
+    }
+    .profile-card-title {
+      font-size:20px; font-family:var(--head); font-weight:800; color:#ffffff;
+      margin:0 0 24px 0;
+    }
+    
+    .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .form-grid-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+    @media(max-width:768px) {
+      .form-grid-2 { grid-template-columns:1fr; }
+      .form-grid-3 { grid-template-columns:1fr; }
+    }
+    
+    .form-group { margin-bottom:20px; }
+    .form-label-row {
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;
+    }
+    .form-label {
+      display:block; font-size:13px; font-weight:600; color:#cbd5e1; margin-bottom:8px;
+    }
+    .form-label-opt { font-size:12px; color:#6e7687; font-weight:400; }
+    .bio-counter { font-size:12px; color:#6e7687; }
+    .bio-counter.limit { color:var(--red-bright, #ff1e2b); }
+
+    /* Inputs Modernos Alto Contraste */
+    .form-control {
+      width:100%; padding:12px 16px;
+      background:#ffffff !important; color:#11141a !important;
+      border:1.5px solid #262c3a; border-radius:8px;
+      font-size:14px; font-weight:500;
+      transition:border-color .15s, box-shadow .15s; outline:none;
+    }
+    .form-control:focus {
+      border-color:var(--red, #e50914) !important;
+      box-shadow:0 0 0 3px rgba(229, 9, 20, 0.25) !important;
+    }
+    .form-control::placeholder { color:#8d96a7 !important; }
+    
+    textarea.form-control { min-height:85px; resize:vertical; line-height:1.5; }
+    
+    /* Input con Icono */
+    .input-with-icon {
+      position:relative; display:flex; align-items:center;
+    }
+    .input-icon {
+      position:absolute; left:14px; color:#6e7687;
+      display:flex; align-items:center; justify-content:center; pointer-events:none;
+    }
+    .input-with-icon .form-control {
+      padding-left:42px;
+    }
+
+    /* Acciones del formulario */
+    .form-actions-row {
+      /* wrap: en pantallas angostas los dos botones no entran en una fila y
+         se salian del formulario, estirando el ancho del documento (y con el,
+         la barra inferior fija, que quedaba descentrada). */
+      display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-top:28px;
+    }
+
+    /* ─── Data Tables & Card Panels ───────────────────────── */
+    .section-panel { display:none; }
+    .section-panel.active { display:block; }
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table th {
+      font-family:var(--mono, monospace); font-size:10px; letter-spacing:1px; text-transform:uppercase;
+      color:#6e7687; text-align:left; padding:10px 16px;
+      background:rgba(255,255,255,.02); border-bottom:1px solid #1f242e;
+    }
+    .data-table td {
+      padding:14px 16px; border-bottom:1px solid #1a1e27;
+      font-size:14px; color:#8d96a7;
+    }
+    .data-table tr:last-child td { border-bottom:none; }
+    .data-table tr:hover td { background:rgba(255,255,255,.02); }
+    .data-table td:first-child { color:#ffffff; font-weight:600; }
+
+    .team-card {
+      background:#11141a; border:1px solid #1f242e;
+      border-radius:14px; padding:18px; transition:border-color .2s;
+    }
+    .team-card:hover { border-color:var(--red-deep, #990710); }
+    .team-card__name { font-family:var(--head); font-weight:700; color:#fff; margin-bottom:4px; }
+    .team-card__meta { font-size:12px; color:#6e7687; }
+
+    .empty-block {
+      text-align:center; padding:48px 16px; color:#8d96a7; font-size:14px;
+    }
+    .empty-block .icon { font-size:2.5rem; margin-bottom:12px; opacity:.7; }
+    .empty-block a { color:var(--red-bright, #ff1e2b); font-weight:600; text-decoration:none; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar publica: la misma barra del resto del sitio, para poder salir del
+       panel sin volver atras. main.js (initAuthNav) reemplaza "Iniciar Sesion /
+       Registrarse" por el avatar y "Cerrar sesion" cuando hay sesion, que en
+       estas pantallas privadas es siempre. -->
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="/">
+        <span class="badge badge-crop" style="background-image:url(../../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+        Tornalyx
+      </a>
+      <nav class="nav-links" aria-label="Navegacion principal">
+        <a href="/">Inicio</a>
+        <a href="/torneos">Torneos</a>
+        <a href="/jugadores">Jugadores</a>
+        <a href="/documentacion">Documentacion</a>
+      </nav>
+      <div class="nav-right">
+        <a href="/login" class="nav-link-login">Iniciar Sesion</a>
+        <a href="/login?tab=registro" class="btn btn-nav-register">Registrarse</a>
+      </div>
+      <div class="nav-utility" id="navUtility">
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sidebar-brand" href="/">
+      <span class="badge badge-crop mark" style="background-image:url(../../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+      Tornalyx
+    </a>
+    <nav class="sidebar__nav" aria-label="Navegación de cuenta">
+      <span class="sidebar__section">MI CUENTA</span>
+      <a class="sidebar__item active" data-section="perfil" data-title="Mi perfil">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8.2" r="3.4"/>
+            <path d="M4.8 20c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2"/>
+          </svg>
+        </span> Mi perfil
+      </a>
+      <a class="sidebar__item" data-section="torneos" data-title="Mis torneos">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 4h10v3.5a5 5 0 0 1-10 0V4Z"/>
+            <path d="M7 5.2H5.2a2 2 0 0 0 0 4H7"/>
+            <path d="M17 5.2h1.8a2 2 0 0 1 0 4H17"/>
+            <path d="M12 12.5V16"/>
+            <path d="M9 20h6"/>
+            <path d="M9.5 16h5l.6 4h-6.2l.6-4Z"/>
+          </svg>
+        </span> Mis torneos
+      </a>
+      <a class="sidebar__item" data-section="equipos" data-title="Mis equipos">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="8.2" r="3.2"/>
+            <path d="M3.5 20c0-3.6 2.5-6.3 5.5-6.3s5.5 2.7 5.5 6.3"/>
+            <circle cx="16.8" cy="9" r="2.3"/>
+            <path d="M15 14.2c2.4.5 4.2 2.7 4.5 5.8"/>
+          </svg>
+        </span> Mis equipos
+      </a>
+      <a class="sidebar__item" data-section="seguridad" data-title="Seguridad">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="11" width="14" height="9" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+          </svg>
+        </span> Seguridad
+      </a>
+
+      <!-- SISTEMA (Administración) -->
+      <span class="sidebar__section" id="sidebarAdminSection" style="display:none">SISTEMA</span>
+      <a class="sidebar__item" id="sidebarAdminLink" href="/admin/dashboard" title="Administración" style="display:none">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span> Administración
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="user-row">
+        <div class="user-avatar" data-user-avatar>…</div>
+        <div>
+          <div class="user-name" data-user-name>…</div>
+          <div class="user-role" data-user-role>…</div>
+        </div>
+      </div>
+      <a class="btn btn-primary btn-sm btn-full" href="/logout" style="margin-top:10px">Cerrar sesión</a>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Main Container -->
+  <div class="app-main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Mi perfil</span>
+      </div>
+      <div id="topbarActions" style="display:flex;align-items:center;gap:var(--space-3)">
+      </div>
+    </header>
+
+    <main class="app-content">
+
+      <!-- ── MI PERFIL ──────────────────────────────────────── -->
+      <div class="section-panel active" id="panel-perfil">
+        
+        <!-- Card 1: Resumen de Usuario & Estadísticas -->
+        <div class="profile-hero-card">
+          <div class="profile-hero-top">
+            <div class="avatar-wrap">
+              <div class="avatar avatar--large" id="heroAvatar" role="img" aria-label="Foto de perfil"></div>
+              <button type="button" class="avatar-edit-overlay" id="avatarBtn" title="Cambiar foto" aria-label="Cambiar foto de perfil">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </button>
+              <input type="file" id="avatarInput" accept="image/jpeg,image/png,image/webp" class="hidden" />
+            </div>
+            <div class="profile-hero-info">
+              <div style="display:inline-flex;align-items:center;gap:8px;position:relative;flex-wrap:wrap">
+                <h1 class="profile-hero-name" id="heroNombre" style="margin:0 0 4px 0">…</h1>
+                <div id="heroSpidermanEgg"></div>
+              </div>
+              <div class="profile-hero-meta" id="heroMeta" style="margin-top:6px">
+                <span class="badge-role-admin" id="heroRol">…</span>
+                <span id="heroEmail"></span>
+              </div>
+              <div class="profile-redes" id="heroRedes" style="display:none"></div>
+            </div>
+          </div>
+
+          <!-- Métricas horizontales -->
+          <div class="profile-stats-row">
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statTorneos">—</div>
+              <div class="profile-stat-lbl">TORNEOS INSCRIPTOS</div>
+            </div>
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statEquipos">—</div>
+              <div class="profile-stat-lbl">EQUIPOS</div>
+            </div>
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statActivos">—</div>
+              <div class="profile-stat-lbl">TORNEOS ACTIVOS</div>
+            </div>
+            <div class="profile-stat-col">
+              <div class="profile-stat-val" id="statFinalizados">—</div>
+              <div class="profile-stat-lbl">FINALIZADOS</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Formulario Datos Personales -->
+        <div class="profile-form-card">
+          <h2 class="profile-card-title">Datos personales</h2>
+          <form id="perfilForm" novalidate>
+            <!-- Nickname y Tagline (Estilo Riot) -->
+            <div class="form-group">
+              <label class="form-label" for="pNickname">Nickname y Tag</label>
+              <div class="riot-id-group">
+                <div class="riot-id-nick-wrap">
+                  <input class="form-control" type="text" id="pNickname" name="nickname" maxlength="30" placeholder="Tu nickname (ej: Kratos)" autocomplete="nickname" />
+                </div>
+                <div class="riot-id-tag-wrap">
+                  <span class="riot-id-tag-prefix">#</span>
+                  <input class="form-control riot-id-tag-input" type="text" id="pTag" name="tag" maxlength="5" placeholder="UY1" pattern="[A-Za-z0-9]{1,5}" title="Hasta 5 letras o números" autocomplete="off" />
+                </div>
+              </div>
+              <span class="form-hint" style="display:block;font-size:12px;color:#6e7687;margin-top:6px">Identificador de jugador en torneos. El tag puede contener hasta 5 letras y números (ej: #UY1, #1234).</span>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="pNombre">Nombre</label>
+                <input class="form-control" type="text" id="pNombre" name="nombre" maxlength="60" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pApellido">Apellido</label>
+                <input class="form-control" type="text" id="pApellido" name="apellido" maxlength="60" required />
+              </div>
+            </div>
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label" for="pEmail">Correo electrónico</label>
+                <input class="form-control" type="email" id="pEmail" name="email" maxlength="120" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pFecha">Fecha de nacimiento</label>
+                <input class="form-control" type="date" id="pFecha" name="fecha_nac" min="1900-01-01" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pUbicacion">Ubicación</label>
+              <input class="form-control" type="text" id="pUbicacion" name="ubicacion" maxlength="120" placeholder="ej: Montevideo, Uruguay" />
+            </div>
+            <div class="form-group">
+              <div class="form-label-row">
+                <label class="form-label" for="pBio" style="margin-bottom:0">Descripción breve</label>
+                <span class="bio-counter" id="bioCounter" aria-live="polite">0 / 500 palabras</span>
+              </div>
+              <textarea class="form-control" id="pBio" name="bio" rows="3"
+                        placeholder="Contá quién sos, qué jugás, tus logros… (máx. 500 palabras)"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Redes sociales <span class="form-label-opt">(Opcional)</span></label>
+              <div class="form-grid-3">
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pTwitter" name="twitter_url" placeholder="Usuario X (Twitter)" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pFacebook" name="facebook_url" placeholder="Usuario Facebook" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pInstagram" name="instagram_url" placeholder="Usuario Instagram" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pYoutube" name="youtube_url" placeholder="Canal de YouTube" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 12.5a4 4 0 1 0 4 4V4c.6 2.6 2.7 4.4 5.5 4.6"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pTiktok" name="tiktok_url" placeholder="Usuario TikTok" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M17 4l-6 8 6 8"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pKick" name="kick_url" placeholder="Usuario Kick" />
+                </div>
+                <div class="input-with-icon">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v11l-4 4h-3l-3 3H8v-3H4z"/><line x1="11" y1="8" x2="11" y2="12"/><line x1="15" y1="8" x2="15" y2="12"/></svg>
+                  </span>
+                  <input class="form-control" type="text" id="pTwitch" name="twitch_url" placeholder="Usuario Twitch" />
+                </div>
+              </div>
+            </div>
+            <div class="form-actions-row">
+              <button type="submit" class="btn btn-primary">Guardar cambios</button>
+              <button type="reset" class="btn btn-ghost" id="perfilReset">Restablecer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ── MIS TORNEOS ────────────────────────────────────── -->
+      <div class="section-panel" id="panel-torneos">
+        <div class="profile-form-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-3);margin-bottom:20px">
+            <h2 class="profile-card-title" style="margin:0">Historial de torneos</h2>
+            <a class="btn btn-ghost btn-sm" href="/organizador/dashboard">Panel de organizador →</a>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Torneo</th><th>Disciplina</th><th>Equipo</th><th>Inscripción</th><th>Estado</th></tr>
+              </thead>
+              <tbody id="torneosBody"></tbody>
+            </table>
+          </div>
+          <div class="empty-block hidden" id="torneosEmpty">
+            <div class="icon">🏆</div>
+            <p>Todavía no estás inscripto en ningún torneo.</p>
+            <p style="margin-top:6px"><a href="/torneos">Explorá los torneos disponibles</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MIS EQUIPOS ────────────────────────────────────── -->
+      <div class="section-panel" id="panel-equipos">
+        <div class="profile-form-card">
+          <h2 class="profile-card-title">Mis equipos</h2>
+          <div class="cards-grid" id="equiposGrid"></div>
+          <div class="empty-block hidden" id="equiposEmpty">
+            <div class="icon">👥</div>
+            <p>Todavía no formás parte de ningún equipo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEGURIDAD ──────────────────────────────────────── -->
+      <div class="section-panel" id="panel-seguridad">
+        <div class="profile-form-card" style="max-width:640px">
+          <h2 class="profile-card-title">Cambiar contraseña</h2>
+          <form id="passForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="passActual">Contraseña actual</label>
+              <input class="form-control" type="password" id="passActual" autocomplete="current-password" placeholder="••••••••" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="passNueva">Nueva contraseña</label>
+              <input class="form-control" type="password" id="passNueva" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="passConfirma">Confirmar nueva contraseña</label>
+              <input class="form-control" type="password" id="passConfirma" autocomplete="new-password" placeholder="Repite la contraseña" required />
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-top:8px">Actualizar contraseña</button>
+          </form>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── FOOTER ─────────────────────────────────────────── -->
+    <footer class="footer-wrap">
+      <div class="wrap">
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="brand" href="/">
+              <span class="badge badge-crop" style="background-image:url(../../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+              Tornalyx
+            </a>
+            <p>Llaves, calendarios y resultados en vivo — todo en un solo lugar.</p>
+          </div>
+          <div class="foot-col">
+            <h5>Producto</h5>
+            <a href="/torneos">Torneos</a>
+            <a href="/jugadores">Jugadores</a>
+            <a href="/documentacion">Documentación</a>
+          </div>
+          <div class="foot-col">
+            <h5>Formatos</h5>
+            <a href="/torneos">Liga</a>
+            <a href="/torneos">Eliminación directa</a>
+            <a href="/torneos">Sistema suizo</a>
+          </div>
+          <div class="foot-col">
+            <h5>Conéctate</h5>
+            <div class="foot-socials">
+              <a href="https://x.com/Tornalyx" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="X (Twitter)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a href="https://youtube.com/@Tornalyx" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="YouTube">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </a>
+              <a href="https://instagram.com/telyuxsoftwaredevelopment" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="Instagram">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="foot-bottom">
+          <div class="foot-legal-links">
+            <span>© 2026 Tornalyx</span>
+            <span class="foot-sep" aria-hidden="true">·</span>
+            <a href="/privacidad">Política de Privacidad</a>
+            <span class="foot-sep" aria-hidden="true">·</span>
+            <a href="/terminos">Términos y Condiciones</a>
+            <span class="foot-sep" aria-hidden="true">·</span>
+            <span>Hecho con ♡</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Navegacion movil: la misma capsula flotante de las paginas publicas.
+       Se oculta sola arriba de 860px (.bottom-nav en main.css). -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <span class="bottom-nav__pill" aria-hidden="true"></span>
+    <a href="/" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 11.5 12 4l8 7.5"/>
+          <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5.5h4V20h3a1 1 0 0 0 1-1v-8.5"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Inicio</span>
+    </a>
+    <a href="/torneos" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 4h10v3.5a5 5 0 0 1-10 0V4Z"/>
+          <path d="M7 5.2H5.2a2 2 0 0 0 0 4H7"/>
+          <path d="M17 5.2h1.8a2 2 0 0 1 0 4H17"/>
+          <path d="M12 12.5V16"/>
+          <path d="M9 20h6"/>
+          <path d="M9.5 16h5l.6 4h-6.2l.6-4Z"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Torneos</span>
+    </a>
+    <a href="/jugadores" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="8.2" r="3.2"/>
+          <path d="M3.5 20c0-3.6 2.5-6.3 5.5-6.3s5.5 2.7 5.5 6.3"/>
+          <circle cx="16.8" cy="9" r="2.3"/>
+          <path d="M15 14.2c2.4.5 4.2 2.7 4.5 5.8"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Jugadores</span>
+    </a>
+    <a href="/documentacion" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7.5 3h6l4 4v12.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>
+          <path d="M13.5 3v4h4"/>
+          <path d="M9 13h6M9 16.5h6M9 9.5h2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Documentación</span>
+    </a>
+    <a href="/login" class="bottom-nav__item bottom-nav__account" aria-current="page" aria-label="Entrar" title="Entrar">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8.2" r="3.4"/>
+          <path d="M4.8 20c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Cuenta</span>
+    </a>
+  </nav>
+
+  <script src="../../js/main.js?v=17"></script>
+  <script src="../../js/dashboard.js?v=17"></script>
+  <script src="../../js/perfil.js?v=17"></script>
+</body>
+</html>

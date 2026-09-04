@@ -1,0 +1,275 @@
+/* =====================================================
+   TORNALYX – pages/home.css
+   Estilos exclusivos de la home (index.html).
+   ===================================================== */
+
+/* ─── Hero: texto a la izquierda, tarjeta eSports a la derecha ── */
+.hero {
+  position: relative;
+  padding: clamp(28px, 4vw, 56px) 0 clamp(20px, 3vw, 40px);
+  overflow: hidden;
+}
+
+.hero-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+}
+
+@media(min-width: 880px) {
+  .hero-top {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 48px;
+  }
+}
+
+.hero-text {
+  text-align: left;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  margin: 0 0 16px;
+}
+
+.hero-title-accent {
+  color: var(--red);
+  display: inline;
+}
+
+.hero-text .lead {
+  font-size: clamp(0.95rem, 1.2vw, 1.125rem);
+  line-height: 1.6;
+  color: #94a3b8;
+  max-width: 48ch;
+  margin: 0 0 24px;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ─── Botón Neumórfico Hero ─── */
+.btn-hero-explore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(145deg, #e50914, #990710);
+  color: #ffffff !important;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  padding: 13px 36px;
+  border-radius: 50px;
+  border: 2px solid rgba(240, 20, 30, 0.4);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: inset 4px 4px 10px rgba(130, 5, 12, 0.85), inset -4px -4px 10px rgba(255, 60, 75, 0.45);
+}
+
+.btn-hero-explore:hover,
+.btn-hero-explore:focus {
+  outline: none;
+  border-color: #ff1e2b;
+  box-shadow: inset 2px 2px 5px rgba(130, 5, 12, 0.85), inset -2px -2px 5px rgba(255, 60, 75, 0.45), 2px 2px 8px rgba(0, 0, 0, 0.6), -2px -2px 8px rgba(229, 9, 20, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-hero-explore:active {
+  background: linear-gradient(145deg, #990710, #e50914);
+  box-shadow: inset 5px 5px 12px rgba(90, 2, 8, 0.95), inset -4px -4px 10px rgba(240, 30, 45, 0.3);
+  transform: scale(0.98);
+}
+
+@media (max-width: 580px) {
+  .hero-cta { width: 100%; }
+  .btn-hero-explore { width: 100%; }
+}
+
+/* ─── Vista previa a la derecha del hero (tarjeta eSports con barra LIVE) ─ */
+.hero-media-card {
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: #12141a;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.hero-media-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+.hero-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-live-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(13, 15, 19, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-live-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-live-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red-bright);
+  flex: none;
+}
+
+.hero-live-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-live-subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted-2);
+  text-transform: uppercase;
+}
+
+.hero-live-title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.hero-live-badge {
+  background: var(--red);
+  color: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Audiencias: foto a la izquierda, texto a la derecha ─ */
+.audiencias-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+  text-align: left;
+}
+
+.audiencias-text h2 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.15;
+}
+
+/* ─── Galería de la sección de audiencias ─────────────── */
+.galeria { position: relative; }
+.galeria__slides {
+  position: relative;
+  aspect-ratio: 4/3;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+@media(max-width: 640px) {
+  .galeria__slides {
+    aspect-ratio: 4/3;
+  }
+}
+
+.galeria__slides::before,
+.galeria__slides::after {
+  display: none;
+}
+
+.galeria__slide {
+  position: absolute; inset: 0;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .5s ease, visibility .5s ease;
+  pointer-events: none;
+}
+.galeria__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+.galeria__slide img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  display: block;
+}
+
+.galeria__slide figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 38px var(--space-5) var(--space-4);
+  font-family: var(--font-heading); font-weight: 600; font-size: 15px;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.4) 60%, transparent 100%);
+  z-index: 2;
+}
+
+.galeria__puntos {
+  display: flex; justify-content: center; gap: 8px;
+  margin-top: var(--space-4);
+}
+.galeria__punto {
+  width: 8px; height: 8px; padding: 0;
+  border-radius: 50%; border: none;
+  background: var(--line);
+  cursor: pointer;
+  transition: background .25s, transform .25s, width .25s;
+}
+.galeria__punto:hover { background: var(--muted-2); }
+.galeria__punto.is-active { background: var(--red); width: 22px; border-radius: 999px; }
+
+html.a11y-motion .galeria__slide { transition: none; }
+
+@media(min-width: 860px) {
+  .audiencias-grid { grid-template-columns: 1fr 1.1fr; gap: 56px; }
+}

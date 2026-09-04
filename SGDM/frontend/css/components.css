@@ -1,0 +1,1285 @@
+/* =====================================================
+   TORNALYX – components.css
+   Estilos de componentes reutilizables
+   Importado después de variables.css y main.css
+   ===================================================== */
+
+/* Los estilos de .btn viven en main.css (neumorfismo); acá sólo lo que
+   no está definido ahí. */
+.btn-icon {
+  padding: 8px;
+  border-radius: 10px;
+}
+
+/* ─── Menú de acciones (3 puntos) ────────────────────────
+   Reemplaza los pares de enlaces sueltos "Editar/Eliminar" en filas de
+   tabla y tarjetas. Se abre/cierra solo con initActionMenus() (main.js),
+   delegado en document: funciona con contenido agregado dinámicamente
+   sin tener que re-enganchar listeners en cada render.
+   Uso:
+   <div class="action-menu">
+     <button type="button" class="action-menu__trigger" aria-haspopup="true" aria-expanded="false" aria-label="Más acciones">
+       <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+     </button>
+     <div class="action-menu__list" role="menu">
+       <button type="button" class="action-menu__item" data-...>...</button>
+       <button type="button" class="action-menu__item action-menu__item--danger" data-...>...</button>
+     </div>
+   </div> */
+.action-menu { position: relative; display: inline-block; }
+.action-menu__trigger {
+  width: 30px; height: 30px; padding: 0; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: none; border: 1px solid transparent; color: var(--muted);
+  cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+}
+.action-menu__trigger svg { width: 16px; height: 16px; fill: currentColor; }
+.action-menu__trigger:hover,
+.action-menu__trigger[aria-expanded="true"] {
+  background: rgba(255,255,255,.06); color: var(--ink); border-color: var(--line);
+}
+.action-menu__list {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 60;
+  min-width: 170px; padding: 6px;
+  background: var(--bg-card); border: 1px solid var(--line);
+  border-radius: 12px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.8);
+  display: none;
+}
+.action-menu.is-open .action-menu__list { display: block; }
+.action-menu__item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 8px 10px; border-radius: 8px; border: none; background: none;
+  color: var(--muted); font-size: 13px; text-align: left; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.action-menu__item svg { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.action-menu__item:hover { background: rgba(255,255,255,.05); color: var(--ink); }
+.action-menu__item--danger { color: var(--red-bright); }
+.action-menu__item--danger:hover { background: rgba(236,28,36,.1); color: var(--red-bright); }
+
+/* ─── Cards ──────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.card__body    { padding: var(--space-5); }
+.card__header  { padding: var(--space-4) var(--space-5); border-bottom: 1px solid var(--line-soft); }
+.card__footer  { padding: var(--space-4) var(--space-5); border-top:    1px solid var(--line-soft); }
+.card:hover    { border-color: var(--line); }
+
+/* ─── Badges ─────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.badge-red    { background: rgba(236,28,36,.15);  color: var(--red-bright); border: 1px solid rgba(236,28,36,.3); }
+.badge-green  { background: rgba(5,150,105,.15);  color: #34d399;           border: 1px solid rgba(5,150,105,.3); }
+.badge-blue   { background: rgba(37,99,235,.15);  color: #93c5fd;           border: 1px solid rgba(37,99,235,.3); }
+.badge-yellow { background: rgba(217,119,6,.15);  color: #fcd34d;           border: 1px solid rgba(217,119,6,.3); }
+.badge-muted  { background: rgba(255,255,255,.05); color: var(--muted);     border: 1px solid var(--line); }
+
+/* ─── Chips / etiquetas ──────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ─── Formularios ────────────────────────────────────── */
+.form-group    { margin-bottom: var(--space-4); }
+.form-label    { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.form-control  {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: var(--font-size-sm);
+  font-family: var(--body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  box-sizing: border-box;
+}
+.form-control:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-glow);
+}
+.form-control.input-error { border-color: var(--red-bright); }
+.form-control::placeholder { color: var(--muted-2); }
+/* Las casillas de mensaje (reglamento, premios, avisos, bio, etc.) no se
+   pueden agrandar arrastrando: el alto lo define `rows`, no el usuario. */
+textarea.form-control { resize: none; }
+.form-error    { display: block; font-size: 12px; color: var(--red-bright); margin-top: 4px; }
+.form-error.hidden { display: none; }
+
+/* ─── Estado vacío (plantilla reutilizable) ─────────────
+   Uso:
+   <div class="empty-state">
+     <div class="empty-state__icon"><svg>...</svg></div>
+     <h3>Título corto</h3>
+     <p>Una línea explicando por qué no hay nada y qué hacer.</p>
+     <div class="empty-state__action"><a class="btn btn-primary btn-sm" href="...">Acción</a></div>
+   </div>
+   El bloque __action es opcional: se omite si no hay ninguna acción que
+   ofrecer (p. ej. un buscador sin resultados). */
+.empty-state {
+  text-align: center;
+  padding: var(--space-10) var(--space-4);
+  color: var(--muted);
+}
+.empty-state__icon {
+  width: 56px; height: 56px; margin: 0 auto var(--space-4);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: rgba(255,255,255,.04);
+  color: var(--muted-2);
+}
+.empty-state__icon svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.empty-state__icon.icon { font-size: 1.75rem; } /* compat: emoji suelto en vez de svg */
+.empty-state h3 { color: var(--ink); font-size: var(--font-size-base); margin-bottom: 6px; }
+.empty-state p  { font-size: var(--font-size-sm); max-width: 40ch; margin: 0 auto; }
+.empty-state__action { margin-top: var(--space-5); }
+/* Compat con el markup viejo (.empty-state .icon suelto, sin envoltorio). */
+.empty-state .icon { font-size: 3rem; margin-bottom: var(--space-4); }
+
+/* ─── Tabla de datos ─────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+.data-table th {
+  text-align: left;
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted-2);
+  border-bottom: 1px solid var(--line);
+}
+.data-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* ─── Alertas ────────────────────────────────────────── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+  border: 1px solid transparent;
+}
+.alert-error   { background: rgba(220,38,38,.12); border-color: rgba(220,38,38,.3); color: #fca5a5; }
+.alert-success { background: rgba(5,150,105,.12);  border-color: rgba(5,150,105,.3); color: #6ee7b7; }
+.alert-info    { background: rgba(37,99,235,.12);  border-color: rgba(37,99,235,.3); color: #93c5fd; }
+.alert.hidden  { display: none; }
+
+/* ─── Tabs ───────────────────────────────────────────── */
+.tab-list {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--space-5);
+  overflow-x: auto;
+  padding-bottom: 1px;
+}
+.tab {
+  padding: 10px 18px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.tab:hover  { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--red); }
+.tab-content        { display: none; }
+.tab-content.active { display: block; }
+
+/* ─── Progress bar ───────────────────────────────────── */
+.progress-bar {
+  height: 6px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--red);
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+
+/* .kpi-card vive en main.css (con el badge de ícono en la esquina); la
+   definición que había acá quedó vieja y, al cargar components.css
+   después, le ganaba la cascada — pisaba el padding-right reservado
+   para el ícono y el texto del label quedaba por debajo del badge. */
+
+/* ─── Modal ──────────────────────────────────────────── */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal, 1000);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+.modal__box {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 520px;
+  position: relative;
+}
+.modal__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color var(--transition-fast);
+}
+.modal__close:hover { color: var(--ink); }
+.modal__title {
+  font-family: var(--head);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+}
+
+/* ─── Sidebar (dashboards) ───────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-width, 240px);
+  height: 100vh;
+  background: var(--bg-2);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transform: translateX(0);
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(2px);
+  z-index: 199;
+}
+.sidebar-overlay.show { display: block; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+}
+
+/* ─── Eyebrow ────────────────────────────────────────── */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+}
+.eyebrow::before {
+  content: '';
+  width: 24px; height: 2px;
+  background: var(--red);
+  flex: none;
+}
+.eyebrow-center { flex-direction: column; gap: 6px; }
+.eyebrow-center::before { width: 32px; }
+
+/* ─── Skeleton loader ────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--line-soft) 25%, var(--line) 50%, var(--line-soft) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 8px;
+}
+@keyframes skeleton-loading {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Divider ────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--muted-2);
+  font-size: var(--font-size-sm);
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* ─── Dot de estado ──────────────────────────────────── */
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot--green  { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.status-dot--yellow { background: #eab308; box-shadow: 0 0 6px #eab308; }
+.status-dot--red    { background: var(--red-bright); box-shadow: 0 0 6px var(--red-bright); }
+
+/* =====================================================
+   ANIMACIÓN 1: SLIDING OVERLAY AUTH PANEL (Login / Registro)
+   Efecto de doble panel deslizante con overlay dinámico
+   ===================================================== */
+.auth-sliding-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: auth-fade-in .5s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes auth-fade-in {
+  from { opacity: 0; transform: translateY(14px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-container {
+  background: rgba(14, 14, 20, 0.88);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.9),
+              0 0 50px -10px rgba(255, 70, 85, 0.25);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1060px;
+  height: 800px;
+  min-height: 740px;
+}
+
+/* ─── Paneles de Formulario (50% cada uno) ─── */
+.form-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  padding: 24px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+.form-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+}
+
+/* Formulario Iniciar Sesión (Mitad Izquierda) */
+.sign-in-container {
+  left: 0;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Formulario Crear Cuenta (Mitad Derecha) */
+.sign-up-container {
+  left: 50%;
+  z-index: 2;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.auth-form-body {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+}
+
+/* ─── Contenedor del Overlay Deslizante ─── */
+.overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: 10;
+  background: linear-gradient(135deg, #150204 0%, #38070b 45%, #b31018 100%);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6), inset 0 0 80px rgba(0, 0, 0, 0.5);
+}
+
+.overlay-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 75% 30%, rgba(236, 28, 36, 0.45) 0%, transparent 65%),
+              radial-gradient(circle at 25% 70%, rgba(180, 15, 22, 0.4) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Cuando se activa Registro: el overlay se desliza a la izquierda */
+.auth-container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.overlay-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 var(--space-8);
+  text-align: center;
+  color: #ffffff;
+  transition: opacity 0.4s ease, transform 0.5s ease;
+}
+
+/* Panel cuando está en modo Login (muestra invitación a Crear Cuenta) */
+.overlay-panel.overlay-right {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.auth-container.right-panel-active .overlay-panel.overlay-right {
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Panel cuando está en modo Registro (muestra invitación a Iniciar Sesión) */
+.overlay-panel.overlay-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.auth-container.right-panel-active .overlay-panel.overlay-left {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.overlay-panel h2 {
+  font-family: var(--head);
+  font-size: clamp(1.8rem, 2.6vw, 2.3rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-3);
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+}
+
+.overlay-panel p {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  opacity: 0.95;
+  max-width: 32ch;
+  margin-bottom: var(--space-6);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ─── Botón Ghost (Exacto del video de referencia) ─── */
+.ghost-btn {
+  padding: 14px 40px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+.ghost-btn:hover {
+  background: #ffffff;
+  color: #0f1015;
+  border-color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.ghost-btn:active {
+  transform: translateY(0);
+}
+
+
+
+/* =====================================================
+   ANIMACIÓN 2: OTP VERIFICATION ORBITAL v3 (Component 89)
+   Circuito orbital animado con trayectoria SVG y slots en órbita
+   ===================================================== */
+:root {
+  --otp-ice: #dceaff;
+  --otp-ok: #2ee6a8;
+  --otp-bad: #ff4d6a;
+}
+
+.otp-orbit-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  padding: var(--space-2) 0;
+}
+
+.otp-orbit {
+  position: relative;
+  width: 250px;
+  height: 250px;
+  margin: var(--space-4) auto var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Anillo SVG de órbita */
+.orbit__ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  animation: orbit-rotate 35s linear infinite;
+}
+
+@keyframes orbit-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.orbit__path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-dasharray: 3 8;
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease;
+}
+
+[data-theme="light"] .orbit__path {
+  stroke: rgba(0, 0, 0, 0.18);
+}
+
+.otp-orbit.is-active .orbit__path {
+  stroke: var(--red-bright);
+}
+.otp-orbit.is-ok .orbit__path {
+  stroke: var(--otp-ok);
+}
+.otp-orbit.is-error .orbit__path {
+  stroke: var(--otp-bad);
+}
+
+/* Hub central (núcleo del reactor) */
+.orbit__hub {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(236, 28, 36, 0.25) 0%, rgba(0, 0, 0, 0.4) 80%);
+  border: 1.5px solid rgba(236, 28, 36, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 25px rgba(236, 28, 36, 0.25);
+  animation: hub-pulse 2.5s ease-in-out infinite alternate;
+  color: var(--red-bright);
+  font-size: 1.1rem;
+}
+
+@keyframes hub-pulse {
+  0%   { transform: scale(0.94); box-shadow: 0 0 15px rgba(236, 28, 36, 0.2); }
+  100% { transform: scale(1.06); box-shadow: 0 0 32px rgba(236, 28, 36, 0.5); }
+}
+
+.otp-orbit.is-ok .orbit__hub {
+  border-color: var(--otp-ok);
+  color: var(--otp-ok);
+  background: radial-gradient(circle, rgba(46, 230, 168, 0.3) 0%, rgba(0, 0, 0, 0.4) 80%);
+  box-shadow: 0 0 35px rgba(46, 230, 168, 0.5);
+}
+
+.otp-orbit.is-error .orbit__hub {
+  border-color: var(--otp-bad);
+  color: var(--otp-bad);
+  background: radial-gradient(circle, rgba(255, 77, 106, 0.3) 0%, rgba(0, 0, 0, 0.4) 80%);
+  box-shadow: 0 0 35px rgba(255, 77, 106, 0.5);
+}
+
+/* Casilleros orbitales (Slots) */
+.orbit__slots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orbit__slot {
+  position: absolute;
+  width: 44px;
+  height: 48px;
+  left: calc(50% - 22px);
+  top: calc(50% - 24px);
+  pointer-events: auto;
+  transition: transform 0.4s cubic-bezier(.34,1.56,.64,1);
+}
+
+.orbit__slot-input {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: var(--bg-2);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: all 0.25s ease;
+}
+
+.orbit__slot-input:focus {
+  border-color: var(--red-bright);
+  box-shadow: 0 0 0 3px rgba(236, 28, 36, 0.25), 0 0 20px rgba(236, 28, 36, 0.35);
+  transform: scale(1.1);
+}
+
+.orbit__slot.is-filled .orbit__slot-input {
+  border-color: var(--red-bright);
+  background: var(--bg-card);
+  color: var(--ink);
+  box-shadow: 0 0 14px rgba(236, 28, 36, 0.2);
+}
+
+.otp-orbit.is-ok .orbit__slot-input {
+  border-color: var(--otp-ok) !important;
+  color: var(--otp-ok) !important;
+  box-shadow: 0 0 16px rgba(46, 230, 168, 0.35) !important;
+}
+
+.otp-orbit.is-error .orbit__slot-input {
+  border-color: var(--otp-bad) !important;
+  color: var(--otp-bad) !important;
+  box-shadow: 0 0 16px rgba(255, 77, 106, 0.35) !important;
+}
+
+/* Cuenta regresiva y resend estilizado */
+.otp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: var(--space-4);
+}
+
+/* ─── Modo Mobile & Reducción de movimiento ─── */
+@media (prefers-reduced-motion: reduce) {
+  .auth-container, .form-container, .overlay-container, .overlay, .overlay-panel, .ghost-btn, .orbit__ring, .orbit__hub, .orbit__slot {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ─── Regla Desktop Only / Mobile Only ─── */
+@media (min-width: 821px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* ─── Modo Mobile: Animación Banner Curvo Expansivo (TikTok Prosper Samuel) ─── */
+@media (max-width: 820px) {
+  .desktop-only,
+  .overlay-container {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+  }
+
+  .auth-sliding-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: calc(100vh - 72px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px 14px 64px;
+  }
+
+  .auth-container {
+    position: relative;
+    width: 100% !important;
+    max-width: 480px;
+    min-height: 580px;
+    height: auto !important;
+    background: rgba(14, 15, 23, 0.94);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 32px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85),
+                0 0 35px rgba(255, 70, 85, 0.2);
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    transition: min-height 0.42s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  /* ─── Banner Curvo Expansivo Móvil ─── */
+  .mobile-banner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 22px 24px;
+    background: linear-gradient(145deg, #180306 0%, #3e070c 50%, #870d18 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(0, 0, 0, 0.45);
+    transition: height 0.42s cubic-bezier(0.65, 0, 0.35, 1),
+                top 0.42s cubic-bezier(0.65, 0, 0.35, 1),
+                bottom 0.42s cubic-bezier(0.65, 0, 0.35, 1),
+                border-radius 0.42s cubic-bezier(0.65, 0, 0.35, 1),
+                box-shadow 0.42s ease;
+  }
+
+  .mobile-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 20%, rgba(255, 55, 85, 0.45) 0%, transparent 65%),
+                radial-gradient(circle at 20% 80%, rgba(200, 16, 46, 0.4) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* En Login: Banner arriba */
+  .auth-container:not(.right-panel-active) .mobile-banner {
+    top: 0;
+    bottom: auto;
+    height: 200px;
+    border-radius: 0 0 44px 44px;
+  }
+
+  /* En Registro: Banner abajo */
+  .auth-container.right-panel-active .mobile-banner {
+    top: auto;
+    bottom: 0;
+    height: 200px;
+    border-radius: 44px 44px 0 0;
+    background: linear-gradient(145deg, #870d18 0%, #3e070c 50%, #180306 100%);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6), inset 0 0 40px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Estado Expandiéndose (.expanding) */
+  .auth-container.expanding .mobile-banner {
+    height: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+  }
+
+  .mobile-banner__content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .auth-container.expanding .mobile-banner__content {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  .auth-container:not(.right-panel-active) .mobile-banner__login {
+    display: flex;
+  }
+  .auth-container:not(.right-panel-active) .mobile-banner__signup {
+    display: none;
+  }
+
+  .auth-container.right-panel-active .mobile-banner__login {
+    display: none;
+  }
+  .auth-container.right-panel-active .mobile-banner__signup {
+    display: flex;
+  }
+
+  .mobile-banner__badge {
+    margin-bottom: 8px;
+  }
+
+  .mobile-banner__badge .badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--red-deep), 0 0 16px rgba(255, 36, 66, 0.4);
+  }
+
+  .mobile-banner h2 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #ffffff;
+    margin: 0 0 4px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  }
+
+  .mobile-banner p {
+    font-size: 12px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 12px;
+    max-width: 32ch;
+  }
+
+  .mobile-banner__btn {
+    padding: 8px 26px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-banner__btn:hover {
+    background: #ffffff;
+    color: #0d0f17;
+    border-color: #ffffff;
+    transform: translateY(-2px) scale(1.03);
+  }
+
+  .mobile-banner__btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  /* ─── Formularios en Mobile ─── */
+  .form-container {
+    position: static;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 520px;
+    overflow: visible !important;
+    transform: none !important;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .auth-container:not(.right-panel-active) .sign-in-container {
+    display: flex !important;
+    padding: 215px 22px 28px !important;
+    opacity: 1 !important;
+  }
+  .auth-container:not(.right-panel-active) .sign-up-container {
+    display: none !important;
+  }
+
+  .auth-container.right-panel-active .sign-up-container {
+    display: flex !important;
+    padding: 24px 22px 215px !important;
+    opacity: 1 !important;
+  }
+  .auth-container.right-panel-active .sign-in-container {
+    display: none !important;
+  }
+
+  .auth-container.expanding .form-container {
+    opacity: 0 !important;
+    transform: scale(0.96) !important;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .otp-orbit {
+    width: 220px;
+    height: 220px;
+  }
+}
+
+/* =====================================================
+   APPLE / iOS / macOS LIQUID GLASS DESIGN SYSTEM
+   Activado automáticamente en iPhone, iPad, Mac o [data-glass="liquid"] / .ios-liquid-glass
+   ===================================================== */
+:root.is-apple,
+:root.is-ios,
+:root.ios-liquid-glass,
+[data-glass="liquid"] {
+  --glass-blur: blur(34px) saturate(210%);
+  --glass-bg: rgba(18, 20, 30, 0.68);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
+                    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+                    0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+/* Clases utilitarias directas */
+.glass,
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+:root.is-apple .glass,
+:root.is-ios .glass,
+:root.ios-liquid-glass .glass,
+[data-glass="liquid"] .glass,
+:root.is-apple .liquid-glass,
+:root.is-ios .liquid-glass,
+:root.ios-liquid-glass .liquid-glass,
+[data-glass="liquid"] .liquid-glass {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-specular) !important;
+}
+
+/* Contenedores y componentes principales bajo Liquid Glass */
+:root.is-apple .nav,
+:root.is-apple .navbar,
+:root.is-apple .bottom-nav,
+:root.is-apple .doc-materia,
+:root.is-apple .auth-container,
+:root.is-apple .card,
+:root.is-apple .modal__box,
+:root.is-apple .doc-tabs-control,
+:root.is-apple .action-menu__list,
+:root.is-ios .nav,
+:root.is-ios .navbar,
+:root.is-ios .bottom-nav,
+:root.is-ios .doc-materia,
+:root.is-ios .auth-container,
+:root.is-ios .card,
+:root.is-ios .modal__box,
+:root.is-ios .doc-tabs-control,
+:root.is-ios .action-menu__list,
+:root.ios-liquid-glass .nav,
+:root.ios-liquid-glass .navbar,
+:root.ios-liquid-glass .bottom-nav,
+:root.ios-liquid-glass .doc-materia,
+:root.ios-liquid-glass .auth-container,
+:root.ios-liquid-glass .card,
+:root.ios-liquid-glass .modal__box,
+:root.ios-liquid-glass .doc-tabs-control,
+:root.ios-liquid-glass .action-menu__list,
+[data-glass="liquid"] .nav,
+[data-glass="liquid"] .navbar,
+[data-glass="liquid"] .bottom-nav,
+[data-glass="liquid"] .doc-materia,
+[data-glass="liquid"] .auth-container,
+[data-glass="liquid"] .card,
+[data-glass="liquid"] .modal__box,
+[data-glass="liquid"] .doc-tabs-control,
+[data-glass="liquid"] .action-menu__list {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-specular) !important;
+}
+
+:root.is-apple .doc-materia,
+:root.is-ios .doc-materia,
+:root.ios-liquid-glass .doc-materia,
+[data-glass="liquid"] .doc-materia {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(18, 22, 34, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.is-apple .doc-tab-btn.active,
+:root.is-ios .doc-tab-btn.active,
+:root.ios-liquid-glass .doc-tab-btn.active,
+[data-glass="liquid"] .doc-tab-btn.active {
+  background: linear-gradient(145deg, #e50914, #990710) !important;
+  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+}
+
+:root.is-apple .btn-primary,
+:root.is-ios .btn-primary,
+:root.ios-liquid-glass .btn-primary,
+[data-glass="liquid"] .btn-primary {
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ─── Apple / iOS Liquid Glass Mobile Navigation Bar ─── */
+:root.is-apple .bottom-nav,
+:root.is-ios .bottom-nav,
+:root.ios-liquid-glass .bottom-nav,
+[data-glass="liquid"] .bottom-nav {
+  border-radius: 999px !important;
+  -webkit-backdrop-filter: blur(38px) saturate(220%) brightness(114%) !important;
+  backdrop-filter: blur(38px) saturate(220%) brightness(114%) !important;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 30%, rgba(14, 16, 26, 0.6) 100%), rgba(10, 12, 18, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.7),
+              0 0 24px rgba(0, 0, 0, 0.4),
+              inset 0 2px 1.5px 0 rgba(255, 255, 255, 0.55),
+              inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+:root.is-apple .bottom-nav__pill,
+:root.is-ios .bottom-nav__pill,
+:root.ios-liquid-glass .bottom-nav__pill,
+[data-glass="liquid"] .bottom-nav__pill {
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, rgba(255, 70, 85, 0.4) 0%, rgba(200, 16, 46, 0.24) 100%), rgba(255, 70, 85, 0.16) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+  backdrop-filter: blur(20px) saturate(200%) !important;
+  border: 1px solid rgba(255, 140, 155, 0.6) !important;
+  box-shadow: inset 0 2px 2px 0 rgba(255, 255, 255, 0.75),
+              inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4),
+              0 8px 26px rgba(255, 70, 85, 0.48) !important;
+}
+
+/* ─── Easter Egg: Spiderman No Home (KratosDuarte17) ─── */
+.spiderman-easter-egg {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 10px;
+  vertical-align: middle;
+  cursor: pointer;
+  z-index: 25;
+  user-select: none;
+  transform-origin: top center;
+  animation: spiderman-enter 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.spiderman-web-thread {
+  width: 2px;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, #ffffff 70%, #ffffff 100%);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+  margin-bottom: -1px;
+}
+
+.spiderman-figure {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: top center;
+  animation: spiderman-idle-sway 3.8s ease-in-out 2.2s infinite alternate;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s;
+}
+
+.spiderman-easter-egg:hover .spiderman-figure {
+  transform: scale(1.12) translateY(-3px);
+  filter: drop-shadow(0 0 10px rgba(229, 9, 20, 0.65));
+}
+
+.spiderman-pixel-svg {
+  width: 34px;
+  height: 52px;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  shape-rendering: crispEdges;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.55));
+}
+
+/* Tooltip / Speech bubble */
+.spiderman-bubble {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px) scale(0.9);
+  background: rgba(17, 20, 26, 0.95);
+  color: #ffffff;
+  font-family: var(--head, sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(229, 9, 20, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 12px rgba(229, 9, 20, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.22s, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 60;
+  backdrop-filter: blur(8px);
+}
+
+.spiderman-bubble::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid rgba(229, 9, 20, 0.7);
+}
+
+.spiderman-easter-egg:hover .spiderman-bubble,
+.spiderman-easter-egg.active .spiderman-bubble {
+  opacity: 1;
+  transform: translateX(-50%) translateY(10px) scale(1);
+}
+
+/* Spider-man web shooting / flip click effect */
+.spiderman-figure.flip {
+  animation: spiderman-flip 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes spiderman-enter {
+  0% {
+    transform: translateY(-130px);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(6px);
+  }
+  90% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spiderman-idle-sway {
+  0% {
+    transform: rotate(-3.5deg);
+  }
+  50% {
+    transform: rotate(3.5deg);
+  }
+  100% {
+    transform: rotate(-3.5deg);
+  }
+}
+
+/* Mini variant for list cards and search results */
+.spiderman-easter-egg--mini {
+  margin-left: 6px;
+}
+.spiderman-easter-egg--mini .spiderman-web-thread {
+  height: 12px;
+}
+.spiderman-easter-egg--mini .spiderman-pixel-svg {
+  width: 22px;
+  height: 34px;
+}
+.spiderman-easter-egg--mini .spiderman-bubble {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+@keyframes spiderman-flip {
+  0% {
+    transform: rotate(0deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.25) translateY(-8px);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+
+
+

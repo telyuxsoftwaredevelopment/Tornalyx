@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>document.documentElement.setAttribute('data-theme','dark');</script>
+  <title>Tornalyx | Términos y Condiciones</title>
+
+  <link rel="icon" href="../assets/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="stylesheet" href="../css/variables.css?v=15" />
+  <link rel="stylesheet" href="../css/main.css?v=15" />
+  <link rel="stylesheet" href="../css/components.css?v=15" />
+  <style>
+    .tc-page { padding:var(--space-8) var(--space-4); }
+    .tc-doc { max-width:820px; margin:0 auto; }
+    .tc-head { text-align:center; margin-bottom:var(--space-8); }
+    .tc-head h1 { font-family:var(--head); font-size:var(--font-size-2xl); color:var(--ink); }
+    .tc-head .tc-sub { color:var(--muted); font-size:var(--font-size-sm); margin-top:6px; }
+    .tc-head .tc-updated { color:var(--muted-2); font-size:12px; margin-top:var(--space-3); }
+    .tc-body { color:var(--muted); font-size:var(--font-size-sm); line-height:1.75; }
+    .tc-body p { margin:0 0 var(--space-4); }
+    .tc-h2 { font-family:var(--head); font-size:var(--font-size-xl); color:var(--ink); margin:var(--space-8) 0 var(--space-3); padding-top:var(--space-5); border-top:1px solid var(--line); }
+    .tc-h2:first-of-type { border-top:none; padding-top:0; margin-top:0; }
+    .tc-h3 { font-family:var(--head); font-size:var(--font-size-md); color:var(--red-bright); margin:var(--space-5) 0 var(--space-2); }
+    .tc-list { margin:0 0 var(--space-4) var(--space-5); display:flex; flex-direction:column; gap:6px; }
+    .tc-list li { list-style:disc; color:var(--muted); }
+    .tc-back { display:inline-flex; align-items:center; gap:8px; margin-bottom:var(--space-6); color:var(--red-bright); font-size:var(--font-size-sm); }
+    .tc-back:hover { color:var(--red); }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="/">
+        <span class="badge badge-crop" style="background-image:url(../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+        Tornalyx
+      </a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        <a href="/">Inicio</a>
+        <a href="/torneos">Torneos</a>
+        <a href="/jugadores">Jugadores</a>
+        <a href="/documentacion">Documentación</a>
+      </nav>
+      <div class="nav-right">
+        <a href="/login" class="nav-link-login">Iniciar Sesión</a>
+        <a href="/login?tab=registro" class="btn btn-nav-register">Registrarse</a>
+      </div>
+      <div class="nav-utility" id="navUtility">
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación móvil: pill líquido sobre el tab activo (main.js:initBottomNav) -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <span class="bottom-nav__pill" aria-hidden="true"></span>
+    <a href="/" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 11.5 12 4l8 7.5"/>
+          <path d="M6 10.5V19a1 1 0 0 0 1 1h3v-5.5h4V20h3a1 1 0 0 0 1-1v-8.5"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Inicio</span>
+    </a>
+    <a href="/torneos" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 4h10v3.5a5 5 0 0 1-10 0V4Z"/>
+          <path d="M7 5.2H5.2a2 2 0 0 0 0 4H7"/>
+          <path d="M17 5.2h1.8a2 2 0 0 1 0 4H17"/>
+          <path d="M12 12.5V16"/>
+          <path d="M9 20h6"/>
+          <path d="M9.5 16h5l.6 4h-6.2l.6-4Z"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Torneos</span>
+    </a>
+    <a href="/jugadores" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="9" cy="8.2" r="3.2"/>
+          <path d="M3.5 20c0-3.6 2.5-6.3 5.5-6.3s5.5 2.7 5.5 6.3"/>
+          <circle cx="16.8" cy="9" r="2.3"/>
+          <path d="M15 14.2c2.4.5 4.2 2.7 4.5 5.8"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Jugadores</span>
+    </a>
+    <a href="/documentacion" class="bottom-nav__item">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7.5 3h6l4 4v12.5a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>
+          <path d="M13.5 3v4h4"/>
+          <path d="M9 13h6M9 16.5h6M9 9.5h2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Documentación</span>
+    </a>
+    <a href="/login" class="bottom-nav__item bottom-nav__account" aria-label="Entrar" title="Entrar">
+      <span class="bottom-nav__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8.2" r="3.4"/>
+          <path d="M4.8 20c0-4 3.2-7.2 7.2-7.2s7.2 3.2 7.2 7.2"/>
+        </svg>
+      </span>
+      <span class="bottom-nav__label">Cuenta</span>
+    </a>
+  </nav>
+
+  <main class="tc-page">
+    <div class="tc-doc">
+      <a class="tc-back" href="javascript:history.back()">
+        <img src="../assets/icon-volver.svg" width="17" height="17" alt="">Volver
+      </a>
+
+      <div class="tc-head">
+        <h1>Términos Y Condiciones De Uso</h1>
+        <p class="tc-sub">Tornalyx · Sistema de Gestión Deportiva Modular</p>
+        <p class="tc-updated">Última actualización: 28 de julio de 2026</p>
+      </div>
+
+      <div class="tc-body">
+      <h2 class="tc-h2">1. Introducción y Aceptación</h2>
+      <p>Los presentes Términos y Condiciones de Uso (en adelante, los “Términos”) regulan el acceso y la utilización de la plataforma Tornalyx (en adelante, la “Plataforma” o el “Servicio”), un sistema de gestión deportiva modular (SGDM) desarrollado y operado por Telyux Software Development (en adelante, “Telyux”, “nosotros” o “nuestro”), con domicilio en la República Oriental del Uruguay.</p>
+      <p>Al registrarse, acceder o utilizar la Plataforma de cualquier forma, el usuario (en adelante, el “Usuario” o “usted”) declara haber leído, comprendido y aceptado íntegramente los presentes Términos, así como nuestra Política de Privacidad. Si usted no está de acuerdo con alguno de estos Términos, deberá abstenerse de utilizar la Plataforma.</p>
+      <p>Telyux se reserva el derecho de modificar estos Términos en cualquier momento, notificando a los Usuarios mediante publicación en la Plataforma o por correo electrónico. El uso continuado del Servicio tras la notificación constituirá la aceptación de las modificaciones realizadas.</p>
+      <h2 class="tc-h2">2. Definiciones</h2>
+      <p>A los efectos de los presentes Términos, los siguientes conceptos tendrán el significado que se indica a continuación:</p>
+      <p>“Plataforma” o “Tornalyx”: Se refiere al sistema web de gestión deportiva modular, incluyendo todas sus funcionalidades, módulos, interfaces y aplicaciones asociadas.</p>
+      <p>“Usuario”: Toda persona física o jurídica que acceda, se registre o utilice la Plataforma en cualquiera de sus roles.</p>
+      <p>“Organizador”: Usuario con permisos para crear, configurar y administrar torneos deportivos dentro de la Plataforma.</p>
+      <p>“Participante”: Usuario registrado como jugador, equipo o delegado dentro de un torneo gestionado por la Plataforma.</p>
+      <p>“Administrador”: Usuario con privilegios elevados para la gestión global de la Plataforma, asignado por Telyux.</p>
+      <p>“Espectador”: Usuario que accede a la Plataforma únicamente para consultar información pública de torneos, resultados y estadísticas.</p>
+      <p>“Contenido del Usuario”: Toda información, datos, textos, imágenes, logotipos o material que el Usuario cargue, publique o transmita a través de la Plataforma.</p>
+      <p>“Módulo”: Cada componente funcional de la Plataforma que puede activarse, desactivarse o configurarse de manera independiente según las necesidades del torneo.</p>
+      <p>“Cuenta”: El perfil personal e intransferible que cada Usuario crea para acceder a la Plataforma.</p>
+      <h2 class="tc-h2">3. Descripción del Servicio</h2>
+      <p>Tornalyx es una plataforma web de gestión deportiva modular diseñada para facilitar la organización, administración y seguimiento de torneos y competencias deportivas. La Plataforma ofrece, entre otras, las siguientes funcionalidades:</p>
+      <ul class="tc-list">
+        <li>Creación y configuración de torneos con múltiples formatos (liga, eliminación directa, grupos, mixto, entre otros).</li>
+        <li>Gestión de inscripciones de equipos y participantes.</li>
+        <li>Generación automática y manual de fixtures y calendarios de partidos.</li>
+        <li>Registro de resultados, estadísticas y tablas de posiciones en tiempo real.</li>
+        <li>Administración de sanciones disciplinarias, tarjetas y suspensiones.</li>
+        <li>Panel de control para organizadores con métricas y reportes.</li>
+        <li>Sistema de notificaciones para participantes y seguidores.</li>
+        <li>Módulos configurables según la disciplina deportiva y las reglas del torneo.</li>
+      </ul>
+      <p>Telyux se reserva el derecho de agregar, modificar o descontinuar funcionalidades de la Plataforma en cualquier momento, con el objetivo de mejorar la experiencia del Usuario y la calidad del Servicio.</p>
+      <h2 class="tc-h2">4. Registro y Cuentas de Usuario</h2>
+      <h3 class="tc-h3">4.1 Requisitos de Registro</h3>
+      <p>Para utilizar las funcionalidades de la Plataforma, el Usuario deberá crear una Cuenta proporcionando información veraz, completa y actualizada. El Usuario declara y garantiza que:</p>
+      <ul class="tc-list">
+        <li>Es mayor de edad según la legislación aplicable, o cuenta con la autorización expresa de su representante legal.</li>
+        <li>La información proporcionada durante el registro es veraz, precisa y actualizada.</li>
+        <li>No utilizará identidades falsas ni suplantará la identidad de terceros.</li>
+        <li>Mantendrá la confidencialidad de sus credenciales de acceso (nombre de usuario y contraseña).</li>
+      </ul>
+      <h3 class="tc-h3">4.2 Responsabilidad de la Cuenta</h3>
+      <p>El Usuario es el único responsable de todas las actividades realizadas desde su Cuenta. Deberá notificar a Telyux de forma inmediata cualquier uso no autorizado de su Cuenta o cualquier otra violación de seguridad de la que tenga conocimiento. Telyux no será responsable de las pérdidas o daños derivados del incumplimiento de esta obligación.</p>
+      <h3 class="tc-h3">4.3 Roles de Usuario</h3>
+      <p>La Plataforma contempla los siguientes roles con distintos niveles de acceso y permisos:</p>
+      <ul class="tc-list">
+        <li>Administrador: Gestión global de la Plataforma, usuarios y configuraciones del sistema.</li>
+        <li>Organizador: Creación, configuración y gestión integral de torneos deportivos.</li>
+        <li>Participante: Inscripción en torneos, consulta de fixtures, resultados y estadísticas propias.</li>
+        <li>Espectador: Acceso de solo lectura a información pública de torneos y resultados.</li>
+      </ul>
+      <p>La asignación de roles puede estar sujeta a aprobación por parte de un Administrador u Organizador, según corresponda.</p>
+      <h2 class="tc-h2">5. Uso Aceptable de la Plataforma</h2>
+      <p>El Usuario se compromete a utilizar la Plataforma de conformidad con la legislación vigente, los presentes Términos, la moral y las buenas costumbres. Queda expresamente prohibido:</p>
+      <ul class="tc-list">
+        <li>Utilizar la Plataforma para fines ilícitos, fraudulentos o que atenten contra los derechos de terceros.</li>
+        <li>Intentar acceder sin autorización a cuentas de otros Usuarios, servidores o redes conectadas a la Plataforma.</li>
+        <li>Introducir virus, malware, código malicioso o cualquier otro material tecnológicamente dañino.</li>
+        <li>Realizar ingeniería inversa, descompilar o desensamblar cualquier componente de la Plataforma.</li>
+        <li>Publicar o transmitir contenido difamatorio, ofensivo, discriminatorio, violento o que incite al odio.</li>
+        <li>Utilizar la Plataforma para enviar comunicaciones comerciales no solicitadas (spam).</li>
+        <li>Manipular o falsificar resultados, estadísticas o cualquier dato deportivo registrado en la Plataforma.</li>
+        <li>Crear múltiples cuentas con el propósito de evadir sanciones o restricciones impuestas.</li>
+        <li>Utilizar sistemas automatizados (bots, scrapers) para extraer datos de la Plataforma sin autorización expresa.</li>
+        <li>Interferir con el funcionamiento normal de la Plataforma o sobrecargar deliberadamente sus recursos.</li>
+      </ul>
+      <p>El incumplimiento de estas disposiciones podrá dar lugar a la suspensión o cancelación inmediata de la Cuenta del Usuario, sin perjuicio de las acciones legales que pudieran corresponder.</p>
+      <h2 class="tc-h2">6. Propiedad Intelectual</h2>
+      <h3 class="tc-h3">6.1 Propiedad de Telyux</h3>
+      <p>La Plataforma, incluyendo su código fuente, diseño, logotipos, marcas, textos, gráficos, interfaces de usuario, bases de datos, algoritmos, arquitectura de software y demás elementos que la componen, son propiedad exclusiva de Telyux Software Development o de sus licenciantes, y se encuentran protegidos por las leyes nacionales e internacionales de propiedad intelectual e industrial.</p>
+      <p>Queda prohibida la reproducción, distribución, modificación, comunicación pública o cualquier otra forma de explotación de los elementos de la Plataforma sin la autorización previa y por escrito de Telyux.</p>
+      <h3 class="tc-h3">6.2 Contenido del Usuario</h3>
+      <p>El Usuario conserva la titularidad de los derechos de propiedad intelectual sobre el Contenido del Usuario que cargue en la Plataforma. No obstante, al subir dicho contenido, el Usuario otorga a Telyux una licencia no exclusiva, mundial, libre de regalías, sublicenciable y transferible para usar, reproducir, modificar, adaptar y mostrar dicho contenido únicamente en la medida necesaria para la prestación del Servicio.</p>
+      <p>El Usuario declara y garantiza que posee todos los derechos necesarios sobre el Contenido del Usuario y que este no infringe derechos de propiedad intelectual, privacidad u otros derechos de terceros.</p>
+      <h2 class="tc-h2">7. Privacidad y Protección de Datos Personales</h2>
+      <p>Telyux se compromete a proteger la privacidad y los datos personales de los Usuarios en conformidad con la Ley N.° 18.331 de Protección de Datos Personales y Acción de Habeas Data de la República Oriental del Uruguay, su decreto reglamentario y demás normativa aplicable.</p>
+      <p>El tratamiento de los datos personales recopilados a través de la Plataforma se regirá por nuestra Política de Privacidad, la cual forma parte integrante de los presentes Términos. Dicha política detalla:</p>
+      <ul class="tc-list">
+        <li>Qué datos personales se recopilan y con qué finalidad.</li>
+        <li>Cómo se almacenan, procesan y protegen los datos.</li>
+        <li>Los derechos del Usuario en relación con sus datos personales (acceso, rectificación, supresión, oposición).</li>
+        <li>Las condiciones bajo las cuales los datos pueden ser compartidos con terceros.</li>
+        <li>El uso de cookies y tecnologías de rastreo.</li>
+        <li>Los plazos de conservación de los datos.</li>
+      </ul>
+      <p>El Usuario podrá ejercer sus derechos de acceso, rectificación, actualización, inclusión, supresión u oposición de sus datos personales mediante comunicación dirigida a soporte@telyuxsoftwaredevelopment.com.</p>
+      <h2 class="tc-h2">8. Planes, Pagos y Facturación</h2>
+      <h3 class="tc-h3">8.1 Planes de Servicio</h3>
+      <p>Tornalyx podrá ofrecer planes gratuitos y de pago con distintos niveles de funcionalidades y límites de uso. Las características de cada plan, sus precios y condiciones específicas se publicarán en la Plataforma y podrán ser actualizados periódicamente.</p>
+      <h3 class="tc-h3">8.2 Condiciones de Pago</h3>
+      <p>En caso de contratar un plan de pago, el Usuario se obliga a:</p>
+      <ul class="tc-list">
+        <li>Realizar los pagos en tiempo y forma según el ciclo de facturación seleccionado (mensual, anual u otro).</li>
+        <li>Proporcionar información de pago válida y actualizada.</li>
+        <li>Asumir los impuestos, tasas o tributos aplicables según la legislación de su jurisdicción.</li>
+      </ul>
+      <h3 class="tc-h3">8.3 Renovación y Cancelación</h3>
+      <p>Los planes de pago se renovarán automáticamente al finalizar cada ciclo de facturación, salvo que el Usuario cancele la suscripción con anterioridad a la fecha de renovación. La cancelación surtirá efecto al finalizar el período ya abonado, sin derecho a reembolso proporcional, salvo disposición legal en contrario.</p>
+      <h3 class="tc-h3">8.4 Reembolsos</h3>
+      <p>Telyux no otorgará reembolsos por períodos parciales de uso, salvo en los casos expresamente previstos por la legislación aplicable o cuando Telyux lo considere apropiado a su exclusivo criterio.</p>
+      <h2 class="tc-h2">9. Disponibilidad del Servicio</h2>
+      <p>Telyux realizará esfuerzos razonables para mantener la Plataforma disponible de forma continua. Sin embargo, el Usuario reconoce y acepta que:</p>
+      <ul class="tc-list">
+        <li>El Servicio podrá sufrir interrupciones temporales por mantenimiento programado, actualizaciones o mejoras, las cuales serán notificadas con antelación razonable cuando sea posible.</li>
+        <li>Podrán producirse interrupciones imprevistas derivadas de fallos técnicos, ataques informáticos, desastres naturales, fallos de proveedores de infraestructura u otras causas de fuerza mayor.</li>
+        <li>Telyux no garantiza que la Plataforma esté libre de errores, defectos o vulnerabilidades de seguridad en todo momento.</li>
+        <li>Telyux no será responsable por los daños, pérdidas o perjuicios que pudieran derivarse de la indisponibilidad temporal del Servicio.</li>
+      </ul>
+      <h2 class="tc-h2">10. Limitación de Responsabilidad</h2>
+      <p>En la medida máxima permitida por la legislación aplicable:</p>
+      <p>10.1. La Plataforma se proporciona “tal cual” y “según disponibilidad”, sin garantías de ningún tipo, ya sean expresas o implícitas, incluyendo, sin limitación, garantías de comerciabilidad, idoneidad para un fin particular o no infracción.</p>
+      <p>10.2. Telyux no será responsable por daños indirectos, incidentales, especiales, consecuentes o punitivos, incluyendo pérdida de beneficios, datos, oportunidades de negocio o fondo de comercio, que resulten del uso o la imposibilidad de uso de la Plataforma.</p>
+      <p>10.3. La responsabilidad total acumulada de Telyux frente al Usuario, por cualquier concepto relacionado con el Servicio, no excederá el monto efectivamente abonado por el Usuario a Telyux durante los doce (12) meses anteriores al evento que originó la reclamación.</p>
+      <p>10.4. Telyux no será responsable de las decisiones deportivas, organizativas o disciplinarias adoptadas por los Organizadores o Administradores a través de la Plataforma.</p>
+      <h2 class="tc-h2">11. Indemnización</h2>
+      <p>El Usuario se obliga a indemnizar, defender y mantener indemne a Telyux, sus directores, empleados, socios, agentes y proveedores, frente a cualquier reclamación, demanda, daño, pérdida, responsabilidad, costo o gasto (incluidos honorarios razonables de abogados) que surjan de o estén relacionados con:</p>
+      <ul class="tc-list">
+        <li>El uso de la Plataforma por parte del Usuario.</li>
+        <li>La violación de los presentes Términos por parte del Usuario.</li>
+        <li>La infracción de derechos de propiedad intelectual, privacidad u otros derechos de terceros.</li>
+        <li>El Contenido del Usuario publicado en la Plataforma.</li>
+        <li>Cualquier actividad ilegal o no autorizada realizada a través de la Cuenta del Usuario.</li>
+      </ul>
+      <h2 class="tc-h2">12. Suspensión y Terminación</h2>
+      <h3 class="tc-h3">12.1 Por parte del Usuario</h3>
+      <p>El Usuario podrá cancelar su Cuenta en cualquier momento a través de las opciones de configuración de la Plataforma o mediante comunicación escrita a Telyux. La cancelación no eximirá al Usuario del cumplimiento de las obligaciones pendientes al momento de la cancelación.</p>
+      <h3 class="tc-h3">12.2 Por parte de Telyux</h3>
+      <p>Telyux se reserva el derecho de suspender o cancelar la Cuenta de un Usuario, total o parcialmente, de forma temporal o definitiva, sin previo aviso, en los siguientes casos:</p>
+      <ul class="tc-list">
+        <li>Incumplimiento de los presentes Términos.</li>
+        <li>Realización de actividades fraudulentas, ilegales o perjudiciales para otros Usuarios o para la Plataforma.</li>
+        <li>Falta de pago de las obligaciones económicas contraídas.</li>
+        <li>Inactividad prolongada de la Cuenta por un período superior a doce (12) meses.</li>
+        <li>Requerimiento de autoridad judicial o administrativa competente.</li>
+        <li>Discontinuación del Servicio por parte de Telyux.</li>
+      </ul>
+      <h3 class="tc-h3">12.3 Efectos de la Terminación</h3>
+      <p>Tras la terminación de la Cuenta, el Usuario perderá el acceso a la Plataforma y a toda la información asociada a su Cuenta. Telyux podrá conservar ciertos datos según lo requiera la legislación aplicable o sus intereses legítimos, conforme a la Política de Privacidad. Se recomienda al Usuario exportar sus datos antes de la cancelación.</p>
+      <h2 class="tc-h2">13. Contenido de Terceros y Enlaces Externos</h2>
+      <p>La Plataforma podrá contener enlaces a sitios web de terceros o integrar servicios proporcionados por terceros. Telyux no controla, respalda ni asume responsabilidad alguna por el contenido, las políticas de privacidad, las prácticas o la disponibilidad de dichos sitios o servicios de terceros. El acceso del Usuario a estos recursos se realiza bajo su exclusiva responsabilidad.</p>
+      <h2 class="tc-h2">14. Seguridad de la Plataforma</h2>
+      <p>Telyux implementa medidas de seguridad técnicas y organizativas razonables, alineadas con las mejores prácticas de la industria y los estándares OWASP, para proteger la Plataforma y los datos de los Usuarios frente a accesos no autorizados, pérdida, alteración o destrucción. Estas medidas incluyen, entre otras:</p>
+      <ul class="tc-list">
+        <li>Cifrado de datos en tránsito y en reposo.</li>
+        <li>Autenticación segura y gestión de sesiones.</li>
+        <li>Validación de entradas y protección contra inyecciones.</li>
+        <li>Monitoreo de actividad y detección de anomalías.</li>
+        <li>Copias de seguridad periódicas.</li>
+        <li>Control de acceso basado en roles.</li>
+      </ul>
+      <p>No obstante, ningún sistema es completamente infalible, y Telyux no puede garantizar la seguridad absoluta de los datos. El Usuario acepta utilizar la Plataforma asumiendo este riesgo inherente.</p>
+      <h2 class="tc-h2">15. Comunicaciones y Notificaciones</h2>
+      <p>Al registrarse en la Plataforma, el Usuario acepta recibir comunicaciones electrónicas de Telyux relacionadas con el Servicio, incluyendo notificaciones sobre su cuenta, actualizaciones de la Plataforma, cambios en los Términos y comunicaciones de carácter administrativo. El Usuario podrá gestionar sus preferencias de comunicación desde la configuración de su Cuenta, salvo aquellas comunicaciones que sean esenciales para la operación del Servicio.</p>
+      <h2 class="tc-h2">16. Legislación Aplicable y Jurisdicción</h2>
+      <p>Los presentes Términos se rigen e interpretan de acuerdo con las leyes de la República Oriental del Uruguay. Para la resolución de cualquier controversia derivada de la interpretación, cumplimiento o ejecución de los presentes Términos, las partes se someten a la jurisdicción de los Tribunales competentes de la ciudad de Montevideo, República Oriental del Uruguay, renunciando expresamente a cualquier otro fuero que pudiera corresponderles.</p>
+      <h2 class="tc-h2">17. Disposiciones Generales</h2>
+      <p>17.1 Acuerdo Íntegro. Los presentes Términos, junto con la Política de Privacidad y cualquier otro documento expresamente referido, constituyen el acuerdo íntegro entre el Usuario y Telyux en relación con el uso de la Plataforma, y sustituyen cualquier acuerdo, comunicación o propuesta anterior, ya sea oral o escrita.</p>
+      <p>17.2 Divisibilidad. Si alguna disposición de los presentes Términos fuera declarada nula, inválida o inaplicable por un tribunal competente, dicha nulidad no afectará la validez de las disposiciones restantes, las cuales continuarán en pleno vigor y efecto.</p>
+      <p>17.3 Renuncia. La falta de ejercicio o la demora en el ejercicio de cualquier derecho o recurso previsto en los presentes Términos por parte de Telyux no constituirá una renuncia a dicho derecho o recurso.</p>
+      <p>17.4 Cesión. El Usuario no podrá ceder ni transferir sus derechos u obligaciones bajo los presentes Términos sin el consentimiento previo y por escrito de Telyux. Telyux podrá ceder libremente sus derechos y obligaciones a cualquier tercero, notificando al Usuario.</p>
+      <p>17.5 Fuerza Mayor. Telyux no será responsable por el incumplimiento o demora en el cumplimiento de sus obligaciones cuando estos se deban a causas de fuerza mayor, incluyendo, sin limitación, desastres naturales, guerras, pandemias, fallos de infraestructura de telecomunicaciones, actos de gobierno o cualquier otra circunstancia ajena a su control razonable.</p>
+      <p>17.6 Idioma. Los presentes Términos se redactan en idioma español. En caso de existir traducciones a otros idiomas, la versión en español prevalecerá en caso de discrepancia.</p>
+      <h2 class="tc-h2">18. Contacto</h2>
+      <p>Para cualquier consulta, sugerencia, reclamo o comunicación relacionada con los presentes Términos o con la Plataforma, el Usuario podrá contactar a Telyux a través de los siguientes medios:</p>
+      <p>Razón Social: Telyux Software Development</p>
+      <p>Sitio Web: telyuxsoftwaredevelopment.com</p>
+      <p>Correo Electrónico: contacto@telyuxsoftwaredevelopment.com</p>
+      <p>Teléfono: +598 98 512 807</p>
+      <p>Ubicación: Montevideo, República Oriental del Uruguay</p>
+      <p>Documento generado para Tornalyx — Telyux Software Development</p>
+      <p>© 2026 Telyux Software Development. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <footer class="footer-wrap">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a class="brand" href="/">
+            <span class="badge badge-crop" style="background-image:url(../assets/ICONO.png)" role="img" aria-label="Tornalyx"></span>
+            Tornalyx
+          </a>
+          <p>Llaves, calendarios y resultados en vivo — todo en un solo lugar.</p>
+        </div>
+        <div class="foot-col">
+          <h5>Producto</h5>
+          <a href="/torneos">Torneos</a>
+          <a href="/jugadores">Jugadores</a>
+          <a href="/documentacion">Documentación</a>
+        </div>
+        <div class="foot-col">
+          <h5>Formatos</h5>
+          <a href="/torneos">Liga</a>
+          <a href="/torneos">Eliminación directa</a>
+          <a href="/torneos">Sistema suizo</a>
+        </div>
+        <div class="foot-col">
+          <h5>Conéctate</h5>
+          <div class="foot-socials">
+            <a href="https://x.com/Tornalyx" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="X (Twitter)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            <a href="https://youtube.com/@Tornalyx" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </a>
+            <a href="https://instagram.com/telyuxsoftwaredevelopment" target="_blank" rel="noopener noreferrer" class="foot-social-link" aria-label="Instagram">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <div class="foot-legal-links">
+          <span>© 2026 Tornalyx</span>
+          <span class="foot-sep" aria-hidden="true">·</span>
+          <a href="/privacidad">Política de Privacidad</a>
+          <span class="foot-sep" aria-hidden="true">·</span>
+          <a href="/terminos">Términos y Condiciones</a>
+          <span class="foot-sep" aria-hidden="true">·</span>
+          <span>Hecho con ♡</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js?v=15"></script>
+</body>
+</html>

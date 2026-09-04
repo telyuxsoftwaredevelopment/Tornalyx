@@ -1,0 +1,237 @@
+<div class="markdown">
+  <div style="text-align:center;padding:var(--space-6) 0;border-bottom:2px solid var(--red-deep);margin-bottom:var(--space-6)">
+    <p style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--muted-2);text-transform:uppercase;margin:0">ANEP · DGETP · UTU · I.T.S. Arias Balparda</p>
+    <h1 style="font-size:2.4rem;margin:8px 0;color:var(--ink)">Ciberseguridad</h1>
+    <p style="font-size:14px;color:var(--muted);margin:4px 0"><strong>Telyux Software Development</strong> · Proyecto Tornalyx · Grupo 3MT (Turno Matutino)</p>
+    <p style="font-size:13px;color:var(--muted-2);margin:0">Integrantes: Germán Bentancor, Roberto Curbelo, Joaquín Duarte, Emiliano González · Entrega: 27/07/2026</p>
+  </div>
+
+  <h2>Objetivo y alcance del documento</h2>
+  <p>El objetivo general de este análisis es identificar, documentar y mitigar las vulnerabilidades de seguridad presentes en la plataforma Tornalyx y su infraestructura, garantizando la protección de los datos y la integridad de los resultados de los torneos. De forma específica, se contrasta la arquitectura contra los estándares internacionales <strong>OWASP Top 10 (2021)</strong> y <strong>OWASP ASVS 4.0</strong>, evaluando la infraestructura, el modelo de control de acceso por roles (RBAC) y las políticas de contraseñas y 2FA bajo la norma <strong>NIST SP 800-63B</strong>.</p>
+  <p>El alcance comprende la totalidad de la aplicación web desarrollada en PHP (MVC nativo), la base de datos MySQL sobre <strong>TiDB Cloud Serverless</strong> (base <code>tornalyx_db</code>), el servidor de aplicación en <strong>Docker / Render</strong>, la integración transaccional con la API de <strong>Brevo</strong> y el entorno de laboratorio sobre Linux Fedora/RHEL.</p>
+
+  <h2>1. Alcance y criterios</h2>
+  <table>
+    <thead>
+      <tr><th>Componente</th><th>Descripción</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Aplicación web</strong></td><td>PHP con arquitectura MVC propia, sin frameworks externos y enrutador centralizado.</td></tr>
+      <tr><td><strong>Base de datos</strong></td><td>MySQL sobre TiDB Cloud Serverless con cifrado TLS en tránsito.</td></tr>
+      <tr><td><strong>Servidor de aplicación</strong></td><td>Imagen Docker propia desplegada en Render, con proxy inverso y TLS del proveedor.</td></tr>
+      <tr><td><strong>Correo transaccional</strong></td><td>API de Brevo, utilizada para el envío de códigos de segundo factor (2FA) y notificaciones.</td></tr>
+      <tr><td><strong>Red interna</strong></td><td>Servidor Linux Fedora/RHEL del equipo, usado como entorno de laboratorio.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Criterio de clasificación de severidad y estado</h3>
+  <table>
+    <thead>
+      <tr><th>Estado</th><th>Significado</th><th>Severidad</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="badge badge-green">Implementado</span></td><td>Presente en el código/configuración y comprobado.</td><td><strong>Crítica:</strong> Permite tomar control del sistema o acceder a datos de todos los usuarios.</td></tr>
+      <tr><td><span class="badge badge-yellow">Parcial</span></td><td>Existe, pero no cubre todos los casos o no produce el efecto total declarado.</td><td><strong>Alta:</strong> Acceder o alterar datos de otras cuentas o eludir la autenticación.</td></tr>
+      <tr><td><span class="badge badge-muted">A verificar</span></td><td>Asumido por el equipo; en proceso de validación continua.</td><td><strong>Media:</strong> Facilita un vector de ataque o degrada un control existente.</td></tr>
+      <tr><td><span class="badge badge-muted">Ausente</span></td><td>No implementado en el alcance inicial.</td><td><strong>Baja:</strong> Buena práctica recomendada sin impacto directo demostrable.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. Identificación de amenazas específicas del sistema</h2>
+  <p>Se identificaron 29 amenazas sobre la arquitectura (4 críticas, 11 altas, 13 medias y 1 baja), concentradas en la delimitación de empaquetado del contenedor y la comprobación de titularidad de recursos.</p>
+
+  <h3>2.1 Puntos de entrada expuestos</h3>
+  <table>
+    <thead>
+      <tr><th>Punto de entrada</th><th>Amenaza principal</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Páginas públicas de torneos, fixture y posiciones</td><td>Consulta de recursos no publicados, recorrido automatizado y consumo de cuota de la BD.</td></tr>
+      <tr><td>Formulario de ingreso</td><td>Fuerza bruta sobre la contraseña y enumeración de cuentas válidas.</td></tr>
+      <tr><td>Registro de cuenta</td><td>Alta masiva automatizada y confirmación de direcciones ya registradas.</td></tr>
+      <tr><td>Recuperación de contraseña</td><td>Enumeración de cuentas y abuso del envío de correo con el dominio propio.</td></tr>
+      <tr><td>Verificación del código 2FA</td><td>Fuerza bruta sobre el código, con el primer factor ya superado.</td></tr>
+      <tr><td>Formularios autenticados</td><td>Inyección, XSS almacenado, CSRF y asignación masiva de atributos.</td></tr>
+      <tr><td>Carga de archivos</td><td>Ejecución de código en el servidor de aplicación.</td></tr>
+      <tr><td>Archivos del contenedor servidos por HTTP</td><td>Exposición de .env, .git y código fuente.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 Amenazas sobre el control de acceso</h3>
+  <table>
+    <thead>
+      <tr><th>Código</th><th>Amenaza</th><th>Severidad</th><th>Condición y Corrección</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TX-01</strong></td>
+        <td>Falta de verificación de titularidad sobre el recurso (IDOR)</td>
+        <td><span class="badge badge-red">Crítica</span></td>
+        <td><strong>Condición:</strong> El enrutador comprueba rol, pero el método consulta por ID numérico correlativo.<br><strong>Corrección:</strong> Incorporar condición de pertenencia en la consulta SQL (<code>WHERE id = ? AND organizador_id = ?</code>) y responder 404 si el recurso no le pertenece.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-02</strong></td>
+        <td>Autorización resuelta en la vista y no en el controlador</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Condición:</strong> Ocultar botones en la UI no evita navegación directa.<br><strong>Corrección:</strong> Cada método del controlador comprueba rol antes de ejecutar cualquier acción.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-03</strong></td>
+        <td>Asignación masiva de atributos</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Condición:</strong> Iterar ciegamente sobre <code>$_POST</code> permite inyectar columnas como <code>rol</code>.<br><strong>Corrección:</strong> Lista blanca estricta de campos permitidos en cada modelo.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.3 Amenazas sobre la autenticación y la sesión</h3>
+  <table>
+    <thead>
+      <tr><th>Código</th><th>Amenaza</th><th>Severidad</th><th>Condición y Corrección</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TX-04</strong></td>
+        <td>Segundo factor sin límite de intentos</td>
+        <td><span class="badge badge-red">Crítica</span></td>
+        <td><strong>Corrección:</strong> Máximo 5 intentos por código; al superarlos, invalidar código y exigir re-login. Vigencia de 10 min, un solo uso, generación con <code>random_int()</code> y comparación con <code>hash_equals()</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-05</strong></td>
+        <td>Bloqueo por intentos evadible por cabeceras del proxy</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Corrección:</strong> Contabilizar intentos por cuenta además de por IP, tomando la última IP confiable de <code>X-Forwarded-For</code> con retardo incremental.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-06</strong></td>
+        <td>Enumeración de cuentas</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Respuesta uniforme en login/registro/recuperación; ejecutar <code>password_verify()</code> contra hash dummy si el usuario no existe para igualar tiempos.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-07</strong></td>
+        <td>Sesiones sobre sistema de archivos efímero</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Migrar sesiones a base de datos / cookies con <code>HttpOnly</code>, <code>Secure</code> y <code>SameSite=Lax</code>, regenerando ID tras login.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-08</strong></td>
+        <td>Recuperación de contraseña incompleta</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Guardar token hasheado, invalidarlo tras uso, cerrar sesiones activas y limitar a 3 solicitudes por hora.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.4 Amenazas de inyección y tratamiento de la salida</h3>
+  <table>
+    <thead>
+      <tr><th>Código</th><th>Amenaza</th><th>Severidad</th><th>Condición y Corrección</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TX-09</strong></td>
+        <td>Fragmentos de consulta que no admiten parámetros (ORDER BY, columnas)</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Corrección:</strong> Lista blanca fija para nombres de columna y dirección (ASC/DESC), <code>ATTR_EMULATE_PREPARES => false</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-10</strong></td>
+        <td>Codificación de salida ausente o parcial (XSS)</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Corrección:</strong> Codificación sistemática con <code>htmlspecialchars($v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')</code> vía helper global <code>e()</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-11</strong></td>
+        <td>Carga de archivos sin restricción</td>
+        <td><span class="badge badge-red">Crítica</span></td>
+        <td><strong>Corrección:</strong> Validación MIME real con <code>finfo</code> y <code>getimagesize</code>, almacenamiento como BLOB en base de datos fuera de la raíz web y servicio vía endpoint seguro.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-12</strong></td>
+        <td>CSRF sobre acciones que no son formularios</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Validación obligatoria de token CSRF en todos los métodos POST/PUT/DELETE, bloqueo de cambios de estado vía GET.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.5 Amenazas sobre la lógica de torneos</h3>
+  <table>
+    <thead>
+      <tr><th>Código</th><th>Amenaza</th><th>Severidad</th><th>Condición y Corrección</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TX-13</strong></td>
+        <td>Resultados modificables sin traza ni cierre</td>
+        <td><span class="badge badge-red">Alta</span></td>
+        <td><strong>Corrección:</strong> Estado "cerrado" de encuentros y registro de auditoría ante reaperturas justificadas por administrador.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-14</strong></td>
+        <td>Condición de carrera en inscripciones con cupo</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Restricción <code>UNIQUE (torneo_id, participante_id)</code> en la base de datos y transacciones seguras.</td>
+      </tr>
+      <tr>
+        <td><strong>TX-15</strong></td>
+        <td>Ausencia de máquina de estados en el ciclo del torneo</td>
+        <td><span class="badge badge-yellow">Media</span></td>
+        <td><strong>Corrección:</strong> Estados explícitos (<code>borrador</code>, <code>inscripcion</code>, <code>en_curso</code>, <code>finalizado</code>, <code>cancelado</code>) validados en el controlador.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>2.6 Amenazas dirigidas a los usuarios e infraestructura (TX-16 a TX-29)</h3>
+  <ul>
+    <li><strong>TX-16 (DNS de correo):</strong> Publicación de registros SPF, DKIM y DMARC en modo rechazo para mitigar phishing.</li>
+    <li><strong>TX-17 (Raíz web):</strong> Delimitación estricta de DocumentRoot a <code>SGDM/frontend</code>, ocultando <code>backend/</code>, <code>.env</code> y <code>.git</code>.</li>
+    <li><strong>TX-18 (Secretos en Docker/Git):</strong> Inyección de secretos en tiempo de ejecución por variables de entorno y <code>.dockerignore</code>.</li>
+    <li><strong>TX-19 (Errores PHP en prod):</strong> <code>display_errors = Off</code> y <code>log_errors = On</code> en producción.</li>
+    <li><strong>TX-20 (Headers de seguridad):</strong> Configuración de CSP, HSTS, X-Frame-Options y X-Content-Type-Options en Apache / mod_headers.</li>
+    <li><strong>TX-24 (TiDB Cloud):</strong> Conexión forzada con TLS, usuario con privilegios acotados DML (SELECT, INSERT, UPDATE, DELETE).</li>
+    <li><strong>TX-29 (Consolas de infraestructura):</strong> 2FA obligatorio en GitHub, Render, TiDB y Brevo para todos los administradores.</li>
+  </ul>
+
+  <h2>4. Matriz de permisos por módulo (RBAC)</h2>
+  <table>
+    <thead>
+      <tr><th>Acción / Módulo</th><th>Admin</th><th>Organizador</th><th>Participante</th><th>Espectador</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Crear torneo</td><td>Sí</td><td>Sí</td><td>No</td><td>No</td></tr>
+      <tr><td>Editar o eliminar torneo</td><td>Sí</td><td>Solo propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Publicar / despublicar</td><td>Sí</td><td>Solo propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Inscribir participantes</td><td>Sí</td><td>Solo propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Cargar resultados</td><td>Sí</td><td>Solo propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Editar resultado confirmado</td><td>Sí (con motivo)</td><td>No</td><td>No</td><td>No</td></tr>
+      <tr><td>Cerrar / reabrir encuentro</td><td>Sí</td><td>Cerrar propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Ver calendario propio</td><td>Sí</td><td>Sí</td><td>Sí</td><td>No</td></tr>
+      <tr><td>Ver torneos publicados</td><td>Sí</td><td>Sí</td><td>Sí</td><td>Sí</td></tr>
+      <tr><td>Ver torneos en borrador</td><td>Sí</td><td>Solo propios</td><td>No</td><td>No</td></tr>
+      <tr><td>Editar perfil de usuario</td><td>Sí</td><td>Solo el propio</td><td>Solo el propio</td><td>No</td></tr>
+      <tr><td>Cambiar rol de cuenta</td><td>Sí</td><td>No</td><td>No</td><td>No</td></tr>
+      <tr><td>Consultar auditoría</td><td>Sí</td><td>Propios torneos</td><td>No</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Política de contraseñas y 2FA (NIST SP 800-63B)</h2>
+  <ul>
+    <li><strong>Longitud mínima:</strong> 12 caracteres (máx. 64 caracteres para soportar frases de contraseña).</li>
+    <li><strong>Almacenamiento:</strong> Algoritmo bcrypt con <code>password_hash()</code>, costo mínimo 12 y <code>password_needs_rehash()</code> en cada login.</li>
+    <li><strong>Bloqueo por intentos:</strong> 5 intentos fallidos consecutivos activan bloqueo automático temporal de 15 minutos.</li>
+    <li><strong>Segundo factor (2FA):</strong> Obligatorio para Administradores y Organizadores con código numérico de 6 dígitos enviado por email vía Brevo.</li>
+  </ul>
+
+  <h2>6. Políticas y medidas de desarrollo seguro</h2>
+  <p>Reglas de ciclo de vida continuo: control de versiones Git con rama principal protegida, parametrización total de consultas SQL con PDO, saneamiento de salida contextual XSS, auditoría de dependencias y registro de eventos de seguridad.</p>
+
+  <h2>7. Bibliografía</h2>
+  <ul>
+    <li>National Institute of Standards and Technology (NIST). (2017). <em>Special Publication 800-63B — Digital Identity Guidelines</em>.</li>
+    <li>OWASP Foundation. (2021). <em>OWASP Top 10:2021</em>. https://owasp.org/Top10/</li>
+    <li>OWASP Foundation. (2021). <em>Application Security Verification Standard (ASVS) 4.0</em>.</li>
+    <li>Poder Legislativo de la República Oriental del Uruguay. (2008). <em>Ley N.º 18.331: Protección de Datos Personales y Acción de Habeas Data</em>.</li>
+  </ul>
+</div>

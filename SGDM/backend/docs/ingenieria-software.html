@@ -1,0 +1,93 @@
+<div class="markdown">
+  <div style="text-align:center;padding:var(--space-6) 0;border-bottom:2px solid var(--red-deep);margin-bottom:var(--space-6)">
+    <p style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--muted-2);text-transform:uppercase;margin:0">ANEP · DGETP · UTU · I.T.S. Arias Balparda</p>
+    <h1 style="font-size:2.4rem;margin:8px 0;color:var(--ink)">Ingeniería de Software</h1>
+    <p style="font-size:14px;color:var(--muted);margin:4px 0"><strong>Telyux Software Development</strong> · Proyecto Tornalyx (SGDM) · Grupo 3MT (Matutino)</p>
+    <p style="font-size:13px;color:var(--muted-2);margin:0">Integrantes: Germán Bentancor, Roberto Curbelo, Joaquín Duarte, Emiliano González · Entrega: 27/07/2026</p>
+  </div>
+
+  <h2>Objetivo y alcance del documento</h2>
+  <p>El presente documento tiene como objetivo general formalizar la planificación estratégica, la estructura organizacional del equipo de trabajo, la fundamentación de las metodologías de investigación de campo y la especificación estandarizada de requisitos para el desarrollo de la plataforma web <strong>Tornalyx</strong> (Sistema de Gestión Deportiva Modular - SGDM). Todo el proceso se despliega bajo las directrices de la asignatura Ingeniería de Software del Instituto Tecnológico Superior Arias Balparda.</p>
+  <p>Respecto al alcance, este informe contempla la constitución formal de <strong>Telyux Software Development</strong>, la asignación de responsabilidades mediante el modelo de Mantei y Constantine, el cronograma temporal modelado mediante diagramas de <strong>Gantt y PERT</strong>, la fundamentación de las encuestas electrónicas y entrevistas presenciales (en fútbol, eSports y ajedrez), la clasificación de los perfiles de usuario y la Especificación de Requisitos de Software bajo el estándar <strong>IEEE 29148</strong>.</p>
+
+  <h2>Introducción</h2>
+  <p>En la actualidad, la administración de torneos deportivos y electrónicos se encuentra caracterizada por una alta fragmentación de herramientas (planillas impresas, hojas de cálculo manuales y grupos de mensajería informal). Para resolver esta problemática, <strong>Telyux Software Development</strong> proyecta el desarrollo de <strong>Tornalyx</strong>, un sistema modular diseñado para centralizar, digitalizar y automatizar la gestión de torneos deportivos tradicionales, electrónicos y mentales.</p>
+
+  <h2>1. Documentación de inicio y planificación del proyecto</h2>
+
+  <h3>1.1 Organización del equipo (Modelo de Mantei y Constantine)</h3>
+  <p>El equipo adopta una estructura de <strong>Programador Jefe (Chief Programmer) con matices democráticos</strong>. Roberto Curbelo actúa como nodo central técnico y líder del equipo, mientras que la distribución de tareas entre desarrollo y documentación permite una especialización eficiente sin perder la coherencia del producto final ni la participación de todos los integrantes en las decisiones clave.</p>
+
+  <h3>1.1.2 Organización de la Empresa</h3>
+  <p>Telyux Software Development adopta una <strong>Organización por Proyecto</strong>. Dado el tamaño de la empresa y el objetivo central enfocado en el producto Tornalyx, este modelo permite concentrar todos los recursos (backend, frontend, análisis y QA) en un único equipo ágil, eliminando burocracias departamentales y facilitando la toma de decisiones rápidas con Scrum.</p>
+
+  <h3>1.2 Reglas del grupo</h3>
+  <ol>
+    <li><strong>Justicia y equidad:</strong> La responsabilidad con las tareas asignadas es obligatoria para todos los miembros.</li>
+    <li><strong>Puntualidad:</strong> Indispensable para cumplir los hitos de entrega y disponer de margen de corrección.</li>
+    <li><strong>Empatía y convivencia:</strong> Los errores se abordan de forma civilizada y constructiva.</li>
+    <li><strong>Información:</strong> Cada integrante debe reportar avances, bloqueos o cambios relevantes.</li>
+    <li><strong>Consenso:</strong> Las decisiones importantes deben ser comunicadas y acordadas por el equipo.</li>
+    <li><strong>Gestión de incidencias:</strong> Aviso previo al líder o sublíder ante cualquier imposibilidad de cumplir una tarea.</li>
+    <li><strong>Seriedad en las reuniones:</strong> Asistencia obligatoria salvo causa debidamente justificada.</li>
+  </ol>
+  <p><em>Régimen disciplinario:</em> Sistema de 3 strikes individuales ante incumplimientos reiterados antes de elevar informe de desvinculación.</p>
+
+  <h3>1.3 Ciclo de vida del proyecto</h3>
+  <p>Se seleccionó un <strong>Ciclo de Vida Iterativo e Incremental</strong> bajo el marco de trabajo ágil <strong>Scrum</strong>. Frente al modelo en cascada tradicional, el enfoque iterativo reduce el riesgo de avanzar sobre supuestos equivocados y permite entregar incrementos funcionales testeados en cada Sprint.</p>
+
+  <h3>1.4 Roles dentro del equipo</h3>
+  <table>
+    <thead>
+      <tr><th>Integrante</th><th>Rol Principal</th><th>Responsabilidades</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Curbelo, Roberto</strong></td>
+        <td>Líder de proyecto / Backend / SysAdmin</td>
+        <td>Liderazgo técnico y organizativo, arquitectura backend en PHP, API REST, despliegue en Docker/Render y gestión del repositorio Git.</td>
+      </tr>
+      <tr>
+        <td><strong>Duarte, Joaquín</strong></td>
+        <td>Sublíder / Frontend / Base de Datos</td>
+        <td>Diseño de interfaz Mobile First en CSS/JS nativo, administración de base de datos relacional MySQL/TiDB e integración front-back.</td>
+      </tr>
+      <tr>
+        <td><strong>Bentancor, Germán</strong></td>
+        <td>Documentador / Tester (QA)</td>
+        <td>Diseño y aplicación de técnicas de relevamiento, definición de pruebas de software, validación con usuarios (UAT) y control de calidad.</td>
+      </tr>
+      <tr>
+        <td><strong>González, Emiliano</strong></td>
+        <td>Documentador / Analista / Diseñador</td>
+        <td>Elaboración del ESRE (IEEE 29148), aplicación de S.C.A.M.P.E.R., identidad corporativa y normativa legal y protección de datos.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>1.5 y 1.6 Planificación temporal: Diagramas de Gantt y PERT</h3>
+  <p>La planificación de las 53 actividades iniciales entre el 15 de junio y el 15 de julio de 2026 se modeló mediante el <strong>Diagrama de Gantt (Anexo A)</strong> y la red de eventos con camino crítico <strong>PERT (Anexo B)</strong>.</p>
+
+  <h2>2. Justificación de las técnicas de relevamiento de datos</h2>
+  <p>Se combinaron <strong>encuestas masivas mediante Google Forms</strong> (recolección cuantitativa rápida y amplia de preferencias) con <strong>entrevistas estructuradas presenciales</strong> (recolección cualitativa profunda de experiencias y dificultades reales en fútbol, eSports y ajedrez).</p>
+
+  <h2>3. Modelos de formularios empleados</h2>
+  <ul>
+    <li><strong>3.1 Encuesta a jugadores de Valorant:</strong> Participación competitiva, creación/unión a equipos, salas automáticas de lobby, confirmación de asistencia y chat con organizadores.</li>
+    <li><strong>3.2 Encuesta a organizadores de Valorant:</strong> Cantidad de torneos anuales, inscripción digital, generación automática de fixture, formatos de competencia y dificultades de gestión manual.</li>
+    <li><strong>3.3 Encuesta a jugadores de fútbol:</strong> Consulta de fixture y tablas de posiciones en tiempo real, notificaciones de horarios y estadísticas individuales.</li>
+    <li><strong>3.4 Entrevista a jugadores de fútbol:</strong> Disponibilidad de canchas, reglamento accesible y confirmación previa de asistencia.</li>
+    <li><strong>3.5 Entrevista a jugadores de ajedrez:</strong> Sistema de emparejamientos (Swiss/Round Robin), comunicación de rondas y centralización de la información.</li>
+  </ul>
+
+  <h2>4 y 5. Resultados crudos y Especificación ESRE (IEEE 29148)</h2>
+  <p>Los datos crudos de las encuestas y entrevistas se conservan en el <strong>Anexo C</strong>. La especificación formal de requisitos funcionales y no funcionales, reglas de negocio, interfaces y restricciones de diseño elaborada bajo el estándar <strong>IEEE 29148</strong> se detalla en el <strong>Anexo D</strong>.</p>
+
+  <h2>7. Bibliografía</h2>
+  <ul>
+    <li>Asociación de Estándares IEEE. (2011). <em>IEEE Standard for Systems and software engineering — Life cycle processes — Requirements engineering (IEEE Std 29148-2011)</em>.</li>
+    <li>Mantei, M. (1981). <em>The effect of programming team structures on programming tasks</em>. Communications of the ACM.</li>
+    <li>Pressman, R. S., & Maxim, B. R. (2020). <em>Ingeniería del software: Un enfoque práctico</em> (9.ª ed.). McGraw-Hill.</li>
+    <li>Schwaber, K., & Sutherland, J. (2020). <em>La Guía de Scrum</em>. https://scrumguides.org/</li>
+  </ul>
+</div>
