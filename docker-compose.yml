@@ -1,0 +1,87 @@
+# ============================================================
+# Tornalyx — entorno de DESARROLLO local con Docker Compose.
+#
+# Levanta dos servicios juntos:
+#   - db  : MySQL 8 (efímero para pruebas, con el esquema ya cargado).
+#   - app : la app PHP/Apache construida desde el Dockerfile del repo.
+#
+# Uso:
+#   docker compose up --build      # construir y arrancar
+#   → abrir http://localhost:8080
+#   docker compose down            # detener (conserva los datos)
+#   docker compose down -v         # detener y BORRAR la base de datos
+#
+# NOTA: esto es SOLO para desarrollo local. En producción (Render) la
+# base de datos es un MySQL externo; ver render.yaml. Las credenciales
+# de aquí abajo son de juguete, no las uses en producción.
+# ============================================================
+
+services:
+  # ── Base de datos MySQL (solo desarrollo) ──────────────────
+  db:
+    image: mysql:8.0
+    # Credenciales de desarrollo. El init crea la base y el usuario;
+    # la app (servicio `app`) se conecta con estos mismos valores.
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: tornalyx_db
+      MYSQL_USER: tornalyx_dml
+      MYSQL_PASSWORD: tornalyx_dev
+    ports:
+      # Expuesto en el host por 3307 (para conectar con un cliente/GUI)
+      # y así no chocar con un MySQL local que ya use el 3306.
+      - "3307:3306"
+    volumes:
+      # Persistencia de datos entre reinicios (borrar con `down -v`).
+      - tornalyx_db_data:/var/lib/mysql
+      # Scripts de inicialización: MySQL los ejecuta en orden alfabético
+      # SOLO la primera vez (cuando el volumen está vacío).
+      # Se carga únicamente el schema (sin datos de prueba). Las migraciones de
+      # SGDM/backend/database/migrations/ ya están plegadas en schema.sql.
+      - ./SGDM/backend/database/migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      # `app` espera a que MySQL responda antes de arrancar.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  # ── Aplicación PHP + Apache ────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # http://localhost:8080  → puerto 80 del contenedor (Apache).
+      - "8080:80"
+    environment:
+      APP_ENV: development
+      # Apunta a la base del contenedor `db` (no a localhost).
+      # Estos valores TIENEN prioridad sobre los del .env de abajo.
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: tornalyx_db
+      DB_USER: tornalyx_dml
+      DB_PASS: tornalyx_dev
+      # MySQL local sin TLS.
+      DB_SSL: "0"
+      DB_SSL_VERIFY: "0"
+    volumes:
+      # Bind-mount del código para editar en caliente (PHP no compila):
+      # editás en SGDM/ y refrescás el navegador, sin reconstruir la imagen.
+      # Si preferís usar solo el código horneado en la imagen, comentá esta línea.
+      - ./SGDM:/var/www/html/SGDM
+      # Monta el .env real para que la app lea las credenciales de correo
+      # (SMTP/Brevo) del 2FA. Lo lee su propio cargador
+      # (loadDotEnv), que NO pisa las variables de BD de arriba (ya definidas).
+      # Se monta como archivo para evitar que Compose interprete los "$" del
+      # DB_PASS. Es opcional: si no tenés .env, borrá esta línea (el login con
+      # 2FA por email no funcionará hasta configurarlo).
+      - ./.env:/var/www/html/.env:ro
+
+volumes:
+  tornalyx_db_data:

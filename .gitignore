@@ -1,0 +1,30 @@
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+*.local.php
+SGDM/backend/database/.secrets/
+
+# Throttle / archivos temporales de la app
+SGDM/backend/storage/
+
+# Archivos subidos por usuarios (avatares, etc.); la app crea la carpeta
+SGDM/frontend/uploads/
+
+# Vista previa estática local (sin backend), no forma parte de la app
+SGDM/frontend/_preview/
+
+# Dependencias
+/vendor/
+node_modules/
+
+# Logs
+*.log
+
+# SO / editor
+Thumbs.db
+.DS_Store
+.vscode/
+.idea/
+.claude/
+docker-compose.local.yml

@@ -1,0 +1,63 @@
+# Blueprint de Render para Tornalyx.
+# Define un único web service en Docker. La base de datos es MySQL EXTERNO
+# (Render no ofrece MySQL administrado): cargá DB_HOST/DB_NAME/DB_USER/DB_PASS
+# apuntando a tu proveedor (PlanetScale, Aiven, Railway, etc.).
+#
+# Las variables marcadas con `sync: false` NO se versionan: Render las pide
+# en el dashboard la primera vez que aplicás el blueprint.
+services:
+  - type: web
+    name: tornalyx
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    # Render inyecta $PORT automáticamente; el Dockerfile/Apache ya lo usan.
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      # ── Entorno ──────────────────────────────────────────────
+      - key: APP_ENV
+        value: production
+
+      # ── Base de datos (MySQL externo) ────────────────────────
+      - key: DB_HOST
+        sync: false
+      # Puerto del proveedor (TiDB Cloud = 4000, Aiven = el que indique su panel).
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      # TLS: requerido por Aiven/TiDB y la mayoría de los MySQL gestionados.
+      - key: DB_SSL
+        value: "1"
+      # Dejala vacía si tu proveedor usa CA pública (TiDB); para Aiven pegá
+      # el contenido de su ca.pem (empieza con -----BEGIN) en el dashboard.
+      - key: DB_SSL_CA
+        sync: false
+      - key: DB_SSL_VERIFY
+        value: "1"
+
+      # ── Envío de correo / 2FA por email ──────────────────────
+      # IMPORTANTE: Render free BLOQUEA el SMTP saliente (puertos 25/465/587),
+      # así que en producción el correo NO puede salir por SMTP/Gmail. El Mailer
+      # envía por la API HTTP de Brevo (va por HTTPS, que sí está permitido) y
+      # usa ese transporte automáticamente en cuanto BREVO_API_KEY está definida.
+      # Sin esta variable el 2FA falla en Render con "No pudimos enviar el código".
+      #
+      # Configuración por única vez en el dashboard de Render:
+      #   1. Cuenta gratis en https://www.brevo.com → SMTP & API → API Keys:
+      #      generá una key y pegala en BREVO_API_KEY.
+      #   2. Verificá el remitente (SMTP_FROM) en Brevo → Senders, Domains & IPs.
+      - key: BREVO_API_KEY
+        sync: false
+      # Remitente del correo (lo usa el transporte Brevo como "sender").
+      # DEBE ser un remitente VERIFICADO en tu cuenta de Brevo.
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: Tornalyx

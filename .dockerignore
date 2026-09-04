@@ -1,0 +1,26 @@
+# Secretos: nunca hornear el .env real dentro de la imagen.
+.env
+.env.*
+!.env.example
+
+# Control de versiones y CI.
+.git
+.github
+
+# Editor / IDE.
+.vscode
+.idea
+
+# Documentación y material que no necesita el runtime.
+docs
+*.docx
+README.md
+
+# Tests y dependencias locales.
+SGDM/tests
+vendor
+node_modules
+
+# Estado temporal de la app y logs.
+SGDM/backend/storage
+*.log
