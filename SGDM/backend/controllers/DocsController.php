@@ -493,19 +493,6 @@ class DocsController extends Controller {
         (new Mailer())->send($email, $nombre, $subject, $html, $text);
     }
 
-    /** Enmascara el correo para mostrarlo sin revelarlo del todo. */
-    private function maskEmail(string $email): string {
-        $partes = explode('@', $email);
-        if (count($partes) !== 2 || $partes[0] === '') {
-            return '***';
-        }
-        $u    = $partes[0];
-        $len  = mb_strlen($u);
-        $ini  = mb_substr($u, 0, 1);
-        $fin  = $len > 1 ? mb_substr($u, -1) : '';
-        return $ini . str_repeat('*', max(1, $len - 2)) . $fin . '@' . $partes[1];
-    }
-
     /**
      * Devuelve [htmlContenido, mensajeError|null]. Sirve de la caché si sigue
      * fresca; si venció, descarga y reprocesa; si la descarga falla, cae a la

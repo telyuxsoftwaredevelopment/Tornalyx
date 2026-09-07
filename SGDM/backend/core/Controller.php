@@ -123,4 +123,99 @@ abstract class Controller {
         $anio = (int) $d->format('Y');
         return $anio >= 1900 && $d <= new DateTimeImmutable('today');
     }
+
+    /**
+     * Política de robustez de contraseña, compartida por el registro público,
+     * el cambio de contraseña del perfil y el alta/edición de usuarios del
+     * admin: al menos 8 caracteres con mayúscula, minúscula y número. Se valida
+     * en el servidor porque el medidor del cliente es solo visual y se evade.
+     */
+    protected function passwordEsFuerte(string $password): bool {
+        return strlen($password) >= 8
+            && preg_match('/[A-Z]/', $password)
+            && preg_match('/[a-z]/', $password)
+            && preg_match('/[0-9]/', $password);
+    }
+
+    /**
+     * Enmascara un correo para mostrarlo sin revelarlo por completo.
+     * Ej.: "rodrigo@gmail.com" → "r******@gmail.com".
+     */
+    protected function maskEmail(string $email): string {
+        $parts = explode('@', $email);
+        if (count($parts) !== 2 || $parts[0] === '') {
+            return '***';
+        }
+        $name = $parts[0];
+        return substr($name, 0, 1)
+             . str_repeat('*', max(1, strlen($name) - 1))
+             . '@' . $parts[1];
+    }
+
+    /**
+     * True si $url es una URL http(s) sintácticamente válida. FILTER_VALIDATE_URL
+     * por sí solo acepta esquemas como "javascript:" o "data:" como válidos, así
+     * que sin el chequeo de esquema alguien podría guardar "javascript:alert(1)"
+     * como enlace (canal de un torneo, red social) y el front lo volcaría tal
+     * cual en un href. Usado por discord_url (torneos) y las redes del perfil.
+     */
+    protected function esUrlHttpValida(string $url): bool {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false
+            && preg_match('#^https?://#i', $url) === 1;
+    }
+
+    /**
+     * True si el usuario en sesión puede gestionar el torneo: es su organizador
+     * dueño (torneos.organizador_id) o es administrador. El rol de organizador
+     * es una pertenencia por torneo, no un rol de cuenta; por eso se resuelve
+     * contra la fila del torneo y no contra el rol global.
+     *
+     * @param array $torneo Fila de torneos (necesita organizador_id).
+     */
+    protected function esGestorDe(array $torneo): bool {
+        return Session::getUserRole() === 'administrador'
+            || (int) $torneo['organizador_id'] === Session::getUserId();
+    }
+
+    /**
+     * Valida y lee una imagen subida por formulario, con el mismo criterio para
+     * el avatar del perfil y la foto de fondo del torneo: exige que el archivo
+     * haya llegado bien, no supere el tope de tamaño y sea realmente JPG/PNG/WebP
+     * (tipo real por finfo + getimagesize, no el que declara el cliente). Ante
+     * cualquier problema responde el error JSON y devuelve null; si todo va bien
+     * devuelve ['data' => <bytes>, 'mime' => <mime real>]. El llamador persiste
+     * el BLOB y arma su propia URL con cache-busting.
+     *
+     * @param string              $campo    Nombre del input de archivo ('avatar', 'banner').
+     * @param array<string,string> $mimes   Mapa de MIME real admitido → extensión.
+     * @param int                 $maxBytes Tamaño máximo permitido, en bytes.
+     * @param string              $maxLabel Tope legible para el mensaje (p. ej. "2 MB").
+     * @return array{data:string,mime:string}|null
+     */
+    protected function procesarImagenSubida(string $campo, array $mimes, int $maxBytes, string $maxLabel): ?array {
+        $file = $_FILES[$campo] ?? null;
+        if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            $this->jsonError('No se recibió ninguna imagen.');
+            return null;
+        }
+        if ((int) $file['size'] > $maxBytes) {
+            $this->jsonError("La imagen no puede superar los {$maxLabel}.");
+            return null;
+        }
+
+        // Tipo real del archivo, no el que declara el cliente.
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+        if (!isset($mimes[$mime]) || getimagesize($file['tmp_name']) === false) {
+            $this->jsonError('Formato no admitido. Usá JPG, PNG o WebP.');
+            return null;
+        }
+
+        $datos = file_get_contents($file['tmp_name']);
+        if ($datos === false) {
+            $this->jsonError('No se pudo leer la imagen. Intentá más tarde.', [], 500);
+            return null;
+        }
+
+        return ['data' => $datos, 'mime' => $mime];
+    }
 }

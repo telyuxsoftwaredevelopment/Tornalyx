@@ -350,16 +350,6 @@ class AdminController extends Controller {
     }
 
     /**
-     * Misma política de contraseña que el registro público.
-     */
-    private function passwordEsFuerte(string $password): bool {
-        return strlen($password) >= 8
-            && preg_match('/[A-Z]/', $password)
-            && preg_match('/[a-z]/', $password)
-            && preg_match('/[0-9]/', $password);
-    }
-
-    /**
      * Devuelve la fila pública de un usuario (sin password) para responder al
      * cliente tras crear o editar.
      *

@@ -48,8 +48,7 @@ class AvisoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (Session::getUserRole() !== 'administrador'
-            && (int) $torneo['organizador_id'] !== Session::getUserId()) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para publicar en este torneo.', [], 403);
             return;
         }

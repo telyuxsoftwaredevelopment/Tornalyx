@@ -41,7 +41,7 @@ class PartidoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$torneo['publico'] && !$this->esGestor($torneo)) {
+        if (!$torneo['publico'] && !$this->esGestorDe($torneo)) {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
@@ -62,7 +62,7 @@ class PartidoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$this->esGestor($torneo)) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para gestionar este torneo.', [], 403);
             return;
         }
@@ -251,12 +251,6 @@ class PartidoController extends Controller {
     // Helpers privados
     // ──────────────────────────────────────────────────────
 
-    /** True si el usuario en sesión organiza el torneo o es administrador. */
-    private function esGestor(array $torneo): bool {
-        return Session::getUserRole() === 'administrador'
-            || (int) $torneo['organizador_id'] === Session::getUserId();
-    }
-
     /**
      * Devuelve el torneo del partido validando permisos. Si algo falla,
      * ya respondió el error y devuelve null.
@@ -272,7 +266,7 @@ class PartidoController extends Controller {
             return null;
         }
         $torneo = $this->torneoModel->findById($torneoId);
-        if (!$torneo || !$this->esGestor($torneo)) {
+        if (!$torneo || !$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para gestionar este torneo.', [], 403);
             return null;
         }

@@ -347,30 +347,6 @@ class AuthController extends Controller {
 HTML;
     }
 
-    /**
-     * Enmascara un correo para mostrarlo sin revelarlo por completo.
-     * Ej.: "rodrigo@gmail.com" → "r******@gmail.com".
-     */
-    private function maskEmail(string $email): string {
-        $parts = explode('@', $email);
-        if (count($parts) !== 2 || $parts[0] === '') {
-            return '***';
-        }
-        $name = $parts[0];
-        return substr($name, 0, 1)
-             . str_repeat('*', max(1, strlen($name) - 1))
-             . '@' . $parts[1];
-    }
-
-    /**
-     * Valida la robustez de la contraseña en el servidor (no confiar en el
-     * medidor del cliente, que es solo visual y se puede evadir).
-     */
-    private function passwordEsFuerte(string $password): bool {
-        return strlen($password) >= 8
-            && preg_match('/[A-Z]/', $password)
-            && preg_match('/[a-z]/', $password)
-            && preg_match('/[0-9]/', $password);
-    }
-
+    // maskEmail() y passwordEsFuerte() viven ahora en el Controller base
+    // (los comparten el registro, el perfil y el panel de administración).
 }

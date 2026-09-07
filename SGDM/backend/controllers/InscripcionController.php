@@ -220,8 +220,7 @@ class InscripcionController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return false;
         }
-        if (Session::getUserRole() !== 'administrador'
-            && (int) $torneo['organizador_id'] !== Session::getUserId()) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para gestionar este torneo.', [], 403);
             return false;
         }

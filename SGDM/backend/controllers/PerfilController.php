@@ -219,11 +219,7 @@ class PerfilController extends Controller {
             $this->jsonError('La contraseña actual no es correcta.', [], 401);
             return;
         }
-        $esFuerte = strlen($nueva) >= 8
-            && preg_match('/[A-Z]/', $nueva)
-            && preg_match('/[a-z]/', $nueva)
-            && preg_match('/[0-9]/', $nueva);
-        if (!$esFuerte) {
+        if (!$this->passwordEsFuerte($nueva)) {
             $this->jsonError('La nueva contraseña debe tener al menos 8 caracteres e incluir mayúsculas, minúsculas y números.');
             return;
         }
@@ -245,26 +241,8 @@ class PerfilController extends Controller {
         }
         $userId = (int) Session::getUserId();
 
-        $file = $_FILES['avatar'] ?? null;
-        if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            $this->jsonError('No se recibió ninguna imagen.');
-            return;
-        }
-        if ((int) $file['size'] > self::AVATAR_MAX_BYTES) {
-            $this->jsonError('La imagen no puede superar los 2 MB.');
-            return;
-        }
-
-        // Tipo real del archivo, no el que declara el cliente.
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-        if (!isset(self::AVATAR_MIMES[$mime]) || getimagesize($file['tmp_name']) === false) {
-            $this->jsonError('Formato no admitido. Usá JPG, PNG o WebP.');
-            return;
-        }
-
-        $datos = file_get_contents($file['tmp_name']);
-        if ($datos === false) {
-            $this->jsonError('No se pudo leer la imagen. Intentá más tarde.', [], 500);
+        $imagen = $this->procesarImagenSubida('avatar', self::AVATAR_MIMES, self::AVATAR_MAX_BYTES, '2 MB');
+        if ($imagen === null) {
             return;
         }
 
@@ -273,8 +251,8 @@ class PerfilController extends Controller {
         // vieja aunque la fila ya tenga la nueva.
         $url = self::AVATAR_URL . '/' . $userId . '?v=' . time();
         $this->usuarioModel->actualizar($userId, [
-            'avatar_data' => $datos,
-            'avatar_mime' => $mime,
+            'avatar_data' => $imagen['data'],
+            'avatar_mime' => $imagen['mime'],
             'avatar_url'  => $url,
         ]);
         $this->jsonSuccess(['avatar_url' => $url]);
@@ -393,13 +371,13 @@ class PerfilController extends Controller {
 
         // Si ya empieza con http:// o https://
         if (preg_match('#^https?://#i', $v)) {
-            return $this->esUrlValida($v) ? $v : null;
+            return $this->esUrlHttpValida($v) ? $v : null;
         }
 
         // Si empieza con www. o el dominio de la red social
         if (preg_match('#^(?:www\.)?(?:twitter\.com|x\.com|facebook\.com|fb\.com|instagram\.com|instagr\.am|youtube\.com|youtu\.be|tiktok\.com|kick\.com|twitch\.tv)/#i', $v)) {
             $url = 'https://' . ltrim($v, '/');
-            return $this->esUrlValida($url) ? $url : null;
+            return $this->esUrlHttpValida($url) ? $url : null;
         }
 
         // Si es un nombre de usuario alfanumérico (letras, números, puntos, guiones)
@@ -421,19 +399,6 @@ class PerfilController extends Controller {
 
         // Intento genérico agregando https://
         $url = 'https://' . $v;
-        return $this->esUrlValida($url) ? $url : null;
-    }
-
-    /**
-     * True si $url es una URL http(s) sintácticamente válida. Mismo criterio
-     * que discord_url en TorneoController::validarCampos(): FILTER_VALIDATE_URL
-     * por sí solo acepta esquemas como "javascript:" o "data:" como válidos,
-     * así que sin el chequeo de esquema alguien podría guardar
-     * "javascript:alert(1)" como red social y el front lo volcaría tal cual
-     * en el href del ícono.
-     */
-    private function esUrlValida(string $url): bool {
-        return filter_var($url, FILTER_VALIDATE_URL) !== false
-            && preg_match('#^https?://#i', $url) === 1;
+        return $this->esUrlHttpValida($url) ? $url : null;
     }
 }

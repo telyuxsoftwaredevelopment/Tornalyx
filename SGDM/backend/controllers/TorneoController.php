@@ -97,14 +97,10 @@ class TorneoController extends Controller {
         // Los torneos no públicos (borradores) solo son visibles para su
         // organizador dueño y para administradores. Para cualquier otro se
         // responde 404 (no 403) para no revelar siquiera su existencia.
-        if (!$torneo['publico']) {
-            $esDueno = Session::getUserId() === (int) $torneo['organizador_id'];
-            $esAdmin = Session::getUserRole() === 'administrador';
-            if (!$esDueno && !$esAdmin) {
-                http_response_code(404);
-                $this->jsonError('Torneo no encontrado.');
-                return;
-            }
+        if (!$torneo['publico'] && !$this->esGestorDe($torneo)) {
+            http_response_code(404);
+            $this->jsonError('Torneo no encontrado.');
+            return;
         }
         $this->jsonSuccess([
             'torneo'     => $this->normalizar($torneo),
@@ -192,7 +188,7 @@ class TorneoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$this->esDueno($torneo)) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para editar este torneo.', [], 403);
             return;
         }
@@ -289,7 +285,7 @@ class TorneoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$this->esDueno($torneo)) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para eliminar este torneo.', [], 403);
             return;
         }
@@ -331,7 +327,7 @@ class TorneoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$this->esDueno($torneo)) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para cancelar este torneo.', [], 403);
             return;
         }
@@ -356,31 +352,13 @@ class TorneoController extends Controller {
             $this->jsonError('Torneo no encontrado.', [], 404);
             return;
         }
-        if (!$this->esDueno($torneo)) {
+        if (!$this->esGestorDe($torneo)) {
             $this->jsonError('No tenés permiso para editar este torneo.', [], 403);
             return;
         }
 
-        $file = $_FILES['banner'] ?? null;
-        if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            $this->jsonError('No se recibió ninguna imagen.');
-            return;
-        }
-        if ((int) $file['size'] > self::BANNER_MAX_BYTES) {
-            $this->jsonError('La imagen no puede superar los 4 MB.');
-            return;
-        }
-
-        // Tipo real del archivo, no el que declara el cliente.
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-        if (!isset(self::BANNER_MIMES[$mime]) || getimagesize($file['tmp_name']) === false) {
-            $this->jsonError('Formato no admitido. Usá JPG, PNG o WebP.');
-            return;
-        }
-
-        $datos = file_get_contents($file['tmp_name']);
-        if ($datos === false) {
-            $this->jsonError('No se pudo leer la imagen. Intentá más tarde.', [], 500);
+        $imagen = $this->procesarImagenSubida('banner', self::BANNER_MIMES, self::BANNER_MAX_BYTES, '4 MB');
+        if ($imagen === null) {
             return;
         }
 
@@ -389,8 +367,8 @@ class TorneoController extends Controller {
         // aunque la fila ya tenga la nueva.
         $url = self::BANNER_URL . '/' . $id . '/banner?v=' . time();
         $this->torneoModel->update($id, [
-            'banner_data' => $datos,
-            'banner_mime' => $mime,
+            'banner_data' => $imagen['data'],
+            'banner_mime' => $imagen['mime'],
             'banner_url'  => $url,
         ]);
         $this->jsonSuccess(['banner_url' => $url]);
@@ -411,12 +389,6 @@ class TorneoController extends Controller {
         header('Cache-Control: public, max-age=31536000, immutable');
         header('Content-Length: ' . strlen($torneo['banner_data']));
         echo $torneo['banner_data'];
-    }
-
-    /** True si el usuario en sesión organiza el torneo o es administrador. */
-    private function esDueno(array $torneo): bool {
-        return Session::getUserRole() === 'administrador'
-            || (int) $torneo['organizador_id'] === Session::getUserId();
     }
 
     /**
@@ -479,12 +451,10 @@ class TorneoController extends Controller {
             $this->jsonError('El enlace del canal oficial no puede superar los 255 caracteres.', ['campo' => 'discord_url']);
             return null;
         }
-        // FILTER_VALIDATE_URL solo exige sintaxis de URI: acepta esquemas como
-        // "javascript:" o "data:" como válidos. Sin este chequeo de esquema, un
-        // organizador podría guardar "javascript:alert(1)" como canal oficial y
-        // el front lo vuelca tal cual en el href del botón "Entrar al canal".
-        if ($discord !== '' && (!filter_var($discord, FILTER_VALIDATE_URL)
-            || !preg_match('#^https?://#i', $discord))) {
+        // El enlace se vuelca tal cual en el href del botón "Entrar al canal":
+        // exigimos esquema http(s) (ver Controller::esUrlHttpValida), porque
+        // FILTER_VALIDATE_URL por sí solo aceptaría "javascript:alert(1)".
+        if ($discord !== '' && !$this->esUrlHttpValida($discord)) {
             $this->jsonError('El enlace del canal oficial debe ser una URL http(s) válida.', ['campo' => 'discord_url']);
             return null;
         }
