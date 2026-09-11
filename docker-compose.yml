@@ -37,8 +37,8 @@ services:
       # Scripts de inicialización: MySQL los ejecuta en orden alfabético
       # SOLO la primera vez (cuando el volumen está vacío).
       # Se carga únicamente el schema (sin datos de prueba). Las migraciones de
-      # SGDM/backend/database/migrations/ ya están plegadas en schema.sql.
-      - ./SGDM/backend/database/migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      # SGDM/base_datos/migrations/ ya están plegadas en schema.sql.
+      - ./SGDM/base_datos/migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
     healthcheck:
       # `app` espera a que MySQL responda antes de arrancar.
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]

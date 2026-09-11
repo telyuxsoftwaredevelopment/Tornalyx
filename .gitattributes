@@ -1,0 +1,25 @@
+# Los scripts del servidor corren en AlmaLinux: tienen que quedar con
+# finales de línea LF sí o sí. Con core.autocrlf=true (el valor por defecto
+# de Git for Windows) el checkout los convierte a CRLF y Linux los rechaza
+# con "bad interpreter: /bin/bash^M", porque el \r queda pegado al shebang.
+*.sh            text eol=lf
+*.bash          text eol=lf
+
+# Mismo motivo para lo que interpreta el servidor o el motor de base.
+*.sql           text eol=lf
+*.php           text eol=lf
+.env.example    text eol=lf
+Dockerfile      text eol=lf
+*.conf          text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+.htaccess       text eol=lf
+
+# Binarios: que Git no intente normalizarlos ni mostrarlos como texto.
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.ico           binary
+*.docx          binary
+*.pdf           binary

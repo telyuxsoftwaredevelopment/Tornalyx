@@ -1,0 +1,42 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Este directorio es el DocumentRoot y solo contiene recursos estáticos
+# (css/, js/, assets/) más el front controller. Las vistas .html viven en
+# SGDM/vista, un nivel más arriba: no hay ningún archivo servible por nombre,
+# así que no hace falta ninguna regla de "URLs bonitas". Todo lo que no sea un
+# archivo real de css/js/assets cae en index.php, que es el que enruta.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Seguridad: bloquear acceso a archivos sensibles
+<FilesMatch "\.(env|json|md|sql|sh|log)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ──────────────────────────────────────────────────────────────
+# Headers de seguridad
+# ──────────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # HSTS: fuerza HTTPS durante 1 año (solo aplica cuando ya se sirve por HTTPS).
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Content-Security-Policy: scripts solo locales; estilos inline permitidos
+    # (las vistas usan atributos style=); fuentes desde Google Fonts.
+    # img-src incluye los hosts de imágenes de Google Docs porque la página de
+    # Documentación incrusta el contenido publicado de los Docs (que trae imágenes
+    # servidas desde docs.google.com / googleusercontent.com). El resto sigue cerrado.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://docs.google.com https://*.googleusercontent.com; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+    # X-XSS-Protection está deprecado y puede introducir vulnerabilidades;
+    # se reemplaza por la CSP de arriba. Lo desactivamos explícitamente.
+    Header always set X-XSS-Protection "0"
+</IfModule>

@@ -185,34 +185,86 @@ El proyecto sigue el patrón de diseño **MVC (Modelo - Vista - Controlador)**.
 
 ## 📂 Estructura del Proyecto
 
+El proyecto está organizado por capas del patrón **MVC**. Cada capa es una
+carpeta de primer nivel dentro de `SGDM/`, y todas viven **fuera** del
+DocumentRoot: Apache solo puede servir lo que hay en `publico/`.
+
 ```text
 SGDM/
 │
-├── backend/              # PHP: MVC + API JSON (no expuesto por Apache)
-│   ├── controllers/
-│   ├── core/              # Router, Controller base, View (motor de plantillas)
-│   ├── models/
-│   ├── shared/             # Session, Mailer, LoginThrottle, Fixture
-│   ├── vistas/             # Plantillas server-side (documentación, OTP)
-│   ├── config/
-│   └── database/
-│       └── migrations/
-│
-├── frontend/              # DocumentRoot de Apache
-│   ├── index.php           # Front controller (API + guardia de sesión)
-│   ├── *.html               # Vistas estáticas (home, login, torneos, etc.)
+├── publico/              # DocumentRoot de Apache (lo ÚNICO servible por URL)
+│   ├── index.php          # Front controller: recibe todo y enruta
+│   ├── .htaccess          # Reescritura al front controller + cabeceras
 │   ├── css/
 │   ├── js/
 │   └── assets/
 │
-├── docker/
+├── vista/                # ── V ── Todas las páginas y plantillas
+│   ├── paginas/           # Públicas: index, login, torneos, jugadores…
+│   ├── paneles/           # Privadas: perfil y dashboards (con guardia de rol)
+│   ├── parciales/         # Fragmentos reutilizables (nav-publico)
+│   ├── docs/              # Documentación por materia
+│   ├── documentacion.php  # Plantillas con lógica de servidor
+│   └── doc-aprobacion.php
 │
-├── docs/
+├── controlador/          # ── C ── Recibe la petición y decide qué responder
+│   ├── PaginaController.php   # Sirve las vistas .html (y valida el rol)
+│   ├── AuthController.php     # Login, registro, 2FA, logout
+│   ├── TorneoController.php
+│   ├── InscripcionController.php
+│   ├── PartidoController.php
+│   ├── PerfilController.php
+│   ├── AvisoController.php
+│   ├── DocsController.php
+│   └── AdminController.php
 │
-├── tests/
+├── modelo/               # ── M ── Todo lo que habla con la base de datos
+│   ├── Conexion.php       # PDO + carga del .env (antes config/database.php)
+│   ├── Model.php          # Clase base: CRUD genérico y conexión perezosa
+│   ├── Usuario.php  Torneo.php  Partido.php  Inscripcion.php  Equipo.php
+│   ├── Resultado.php  Posicion.php  Aviso.php  Estadistica.php
+│   ├── OtpModel.php  OtpCode.php  DocOtp.php  DocAcceso.php
+│   └── Migracion.php      # Aplica sola las migraciones pendientes
 │
-└── README.md
+├── nucleo/               # Infraestructura del MVC (no es una capa de negocio)
+│   ├── Router.php         # Tabla de rutas del front controller
+│   ├── Controller.php     # Controlador base: JSON, vistas, autorización
+│   └── View.php           # Motor de plantillas + servido de vistas .html
+│
+├── comun/                # Servicios transversales
+│   ├── Session.php        # Sesión, roles, CSRF, expiración por inactividad
+│   ├── Mailer.php         # Correo transaccional (SMTP o API de Brevo)
+│   ├── LoginThrottle.php  # Límite de intentos (fuerza bruta / enumeración)
+│   └── Fixture.php        # Generación de emparejamientos (lógica pura)
+│
+├── base_datos/           # Esquema, DCL y migraciones
+│   ├── dcl.sql            # Usuarios de MySQL con privilegios mínimos
+│   ├── probar_motor.php
+│   └── migrations/
+│
+├── almacenamiento/       # Estado temporal que escribe la app (no se versiona)
+│
+├── scripts/              # Administración del servidor (Bash) — ver su README
+│
+└── docker/
 ```
+
+### Por dónde pasa una petición
+
+```text
+Navegador
+   │
+   ▼
+.htaccess ──► publico/index.php ──► Router ──► Controlador ──► Modelo ──► MySQL
+                (front controller)                  │
+                                                    ▼
+                                                  Vista  ──►  HTML
+```
+
+Nada saltea ese camino. Una vista `.html` no se puede pedir por su nombre de
+archivo porque no está en el DocumentRoot: la única forma de verla es que un
+controlador decida mostrarla, y eso es lo que hace que la guardia de sesión de
+`/perfil` o `/admin/dashboard` no se pueda esquivar.
 
 ---
 

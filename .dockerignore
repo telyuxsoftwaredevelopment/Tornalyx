@@ -22,5 +22,5 @@ vendor
 node_modules
 
 # Estado temporal de la app y logs.
-SGDM/backend/storage
+SGDM/almacenamiento
 *.log
